@@ -1,0 +1,58 @@
+# Project: running-from-demons
+# Compiler: Default GCC compiler
+# Compiler Type: MingW 3
+# Makefile created by wxDev-C++ IDE 7.4.2.569 on 12/07/12 23:36
+
+WXLIBNAME = wxmsw29u
+CPP       = g++.exe
+CC        = gcc.exe
+WINDRES   = "windres.exe"
+OBJ       = Objects/MingW/player.o Objects/MingW/main.o Objects/MingW/location.o Objects/MingW/key.o Objects/MingW/item.o Objects/MingW/exit.o Objects/MingW/demon.o
+LINKOBJ   = "Objects/MingW/player.o" "Objects/MingW/main.o" "Objects/MingW/location.o" "Objects/MingW/key.o" "Objects/MingW/item.o" "Objects/MingW/exit.o" "Objects/MingW/demon.o"
+LIBS      = -L"C:/Program Files (x86)/Dev-Cpp/lib/wx/gcc_lib" -L"C:/Program Files (x86)/Dev-Cpp/lib" -L"C:/Program Files (x86)/Dev-Cpp/MinGW32/lib"  
+INCS      = -I"C:/Program Files (x86)/Dev-Cpp/MinGW32/include"
+CXXINCS   = -I"C:/Program Files (x86)/Dev-Cpp/MinGW32/include" -I"C:/Program Files (x86)/Dev-Cpp/" -I"C:/Program Files (x86)/Dev-Cpp/include/common"
+RCINCS    = --include-dir "C:/PROGRA~2/Dev-Cpp/include/common"
+BIN       = Output/MingW/running-from-demons.exe
+DEFINES   = 
+CXXFLAGS  = $(CXXINCS) $(DEFINES)  
+CFLAGS    = $(INCS) $(DEFINES)  
+GPROF     = gprof.exe
+ifeq ($(OS),Windows_NT)
+   RM = del /Q
+   FixPath = $(subst /,\,$1)
+else
+   RM = rm -f
+   FixPath = $1
+endif
+LINK      = g++.exe
+
+.PHONY: all all-before all-after clean clean-custom
+all: all-before $(BIN) all-after
+
+clean: clean-custom
+	$(RM) $(call FixPath,$(LINKOBJ)) "$(call FixPath,$(BIN))"
+
+$(BIN): $(OBJ)
+	$(LINK) $(LINKOBJ) -o "$(BIN)" $(LIBS) 
+
+Objects/MingW/player.o: $(GLOBALDEPS) player.cpp player.h location.h item.h player.h key.h location.h item.h
+	$(CPP) -c player.cpp -o Objects/MingW/player.o $(CXXFLAGS)
+
+Objects/MingW/main.o: $(GLOBALDEPS) main.cpp player.h key.h location.h item.h player.h exit.h item.h demon.h location.h player.h location.h
+	$(CPP) -c main.cpp -o Objects/MingW/main.o $(CXXFLAGS)
+
+Objects/MingW/location.o: $(GLOBALDEPS) location.cpp location.h exit.h
+	$(CPP) -c location.cpp -o Objects/MingW/location.o $(CXXFLAGS)
+
+Objects/MingW/key.o: $(GLOBALDEPS) key.cpp key.h location.h item.h player.h
+	$(CPP) -c key.cpp -o Objects/MingW/key.o $(CXXFLAGS)
+
+Objects/MingW/item.o: $(GLOBALDEPS) item.cpp item.h player.h
+	$(CPP) -c item.cpp -o Objects/MingW/item.o $(CXXFLAGS)
+
+Objects/MingW/exit.o: $(GLOBALDEPS) exit.cpp location.h exit.h
+	$(CPP) -c exit.cpp -o Objects/MingW/exit.o $(CXXFLAGS)
+
+Objects/MingW/demon.o: $(GLOBALDEPS) demon.cpp location.h demon.h location.h player.h
+	$(CPP) -c demon.cpp -o Objects/MingW/demon.o $(CXXFLAGS)
