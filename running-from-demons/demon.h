@@ -17,11 +17,11 @@ class Demon {
         void interactDespair(Player *player);
         void interactIsolation(Player *player);
         void interactDistraction(Player *player);
-        void interactSelfLoathing(Player *player);
+        void interactSelfLoathing(Player *player, Location *location);
     public:
         Demon(string newType, string newDescription, Location *newLocation);
         void interactDread(Player *player);
-        void interact(Player *player);
+        void interact(Player *player, Location *location);
         string getType();
 };
 

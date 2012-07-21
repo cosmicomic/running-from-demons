@@ -76,6 +76,10 @@ void Player::setLocation(Location *newLocation) {
     look();
 }
 
+void Player::setLocationNoDescrip(Location *newLocation) {
+    location = newLocation;
+}
+
 void Player::setImmobilized(bool state) {
     immobilized = state;
 }

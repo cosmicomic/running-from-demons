@@ -26,6 +26,7 @@ class Player {
         int setHealth(int newHealth);
         Location* getLocation();
         void setLocation(Location *newLocation);
+        void setLocationNoDescrip(Location *newLocation);
         bool getImmobilized();
         void setImmobilized(bool state);
         bool getHasKey();
