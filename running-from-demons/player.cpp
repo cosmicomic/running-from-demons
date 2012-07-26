@@ -44,6 +44,8 @@ void Player::displayInventory() {
         }
         if (itemName == "exit" || itemName.size() == 0) {
             break;
+        } else if ((itemName == "read letter" || itemName == "open letter") && hasItem("letter")) {
+            cout << endl << "Letter text here";
         } else {
             if (hasItem(itemName)) {
                 cout << endl << (inventoryMap.find(itemName)->second)->getDescription();
@@ -86,6 +88,7 @@ void Player::setImmobilized(bool state) {
 
 void Player::addToInventory(Item *item) {
     inventory.push_back(item);
+    inventoryMap.insert( pair<string, Item*>(item->getName(), item) );
 }
 
 void Player::addToInventory(Key *key) {
@@ -110,5 +113,3 @@ void Player::setHasKey(bool state) {
 bool Player::hasItem(string itemName) {
     return inventoryMap.count(itemName) != 0;
 }
-                
-                
