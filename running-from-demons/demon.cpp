@@ -10,15 +10,13 @@ Demon::Demon(string newType, string newDescription, Location *newLocation) {
     location = newLocation;
 }
 
-void Demon::interact(Player *player, Location *location) {
+void Demon::interact(Player *player, Location *street, Location *bedroom) {
     if (type == "self-loathing"){
         interactSelfLoathing(player, location);
     } else if (type == "despair") {
         interactDespair(player);
-    } else if (type == "isolation") {
-        interactIsolation(player);
     } else if (type == "distraction") {
-        interactDistraction(player);
+        interactDistraction(player, bedroom);
     } else if (type == "regret") {
         interactRegret(player);
     }
@@ -30,7 +28,20 @@ void Demon::interactDread(Player *player) {
 }
 
 void Demon::interactRegret(Player *player) {
-    cout << endl << "message";
+    cout << endl << "The demon casually raises its clawed hand and swipes it at your leg, leaving a deep, painful, throbbing gash. You collapse "
+    << "to the ground in pain and soon lose consciousness.";
+    cin.get();
+    cout << endl << "..."; 
+    cin.get();
+    cout << endl << "You wake up bound to a chair in the theatre. "
+    << "Your eyelids are held open by a crude metal instrument."; cin.get();
+    cout << endl << endl << "The film begins. As the images flash before your eyes, you are seized with an overwhelming sense of nausea. You feel sick to your stomach. "
+    << "You vomit a thin, yellow substance on yourself. You oscillate between feeling icy cold and unbearably hot. You tremble uncontrollably. You desperately "
+    << "want to close your eyes and shut out the horrible images, but are prevented by the cold metal claws gripping your eyelids open. Your eyes feel as if "
+    << "they are shrivelling up. You scream in pain and horror until you once again lose consciousness."; cin.get();
+    cout << endl << "You wake up, your joints aching, on the cold floor. Strangely, "
+    << "the vomit that was on your shirt is now gone. Was it all just a dream? The memory of the pain is so vivid, you can almost still feel it. Certainly, you feel "
+    << "much weaker now.";
     player->setHealth(player->getHealth() - STARTING_HEALTH/2);
 }
 
@@ -49,14 +60,11 @@ void Demon::interactDespair(Player *player) {
     player->setHealth(player->getHealth() - STARTING_HEALTH/2);
 }
 
-void Demon::interactIsolation(Player *player) {
-    cout << endl << "message";
-    player->setHealth(player->getHealth() - STARTING_HEALTH/2);
-}
-
-void Demon::interactDistraction(Player *player) {
-    cout << endl << "message";
-    player->setHealth(player->getHealth() - STARTING_HEALTH/2);
+void Demon::interactDistraction(Player *player, Location *bedroom) {
+    cout << endl << "Unlike most demons, this one seems a lot less motivated to cause you unspeakable pain. Instead, it calmly walks towards you, and pokes you on the shoulder."
+    << " Suddenly, it feels as if you have been swept up by a whirlwind. Or, more fittingly, a black hole; you feel like you're being squeezed into an impossibly small space."
+    << " Soon enough, the tension releases, and you are plopped onto the beige carpet of your bedroom.";
+    player->setLocation(bedroom);
 }
 
 void Demon::interactSelfLoathing(Player *player, Location *location) {
@@ -71,7 +79,6 @@ void Demon::interactSelfLoathing(Player *player, Location *location) {
     cout << endl << endl << "Peeking under your shirt, you find that the cuts have been sloppily stitched up.";
     player->setHealth(player->getHealth() - STARTING_HEALTH/2);
     player->setLocationNoDescrip(location);
-    player->setImmobilized(true);
 }
 
 string Demon::getType() {

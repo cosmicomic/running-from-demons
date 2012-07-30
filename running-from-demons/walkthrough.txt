@@ -1,0 +1,82 @@
+WALKTHROUGH
+
+INTRO LEVEL
+inventory
+(enter)
+
+GETTING THE CROWBAR
+get up
+north
+east
+west
+north
+north
+take crowbar
+
+GETTING THE MAILBOX KEY
+south
+south
+south
+south
+south
+open bottom drawer
+
+GETTING THE VIDEOTAPE
+north
+east
+open true mailbox
+
+GETTING THE LETTER
+west
+west
+north
+take red book
+
+PLAYING THE VIDEOTAPE
+south
+west
+west
+go up stairs
+play videotape
+south
+sit down in chair
+
+GETTING THE BATTERY/TELESCOPE
+east
+use crowbar on fence
+south
+take telescope
+take battery
+
+GETTING THE LAB
+west
+north
+put battery in lab
+turn lab on
+take lab
+
+GETTING THE DAISY CHAIN (must get the lab first)
+south
+east
+east
+east
+
+GOING TO THE STATION
+northwest
+west
+west
+south
+south
+
+GETTING ON THE TRAIN
+pass through turnstile
+enter train
+
+WIN!
+
+
+
+
+
+
+

@@ -34,25 +34,30 @@ void Player::displayInventory() {
         cout << (*it)->getName() << ".";
     }
     
-    string itemName;
+    cout << endl << endl << "To examine an item, enter the name of the item.";
     
-    while (true) {
+    string itemName;
+    cout << endl;
+    cout << endl << ">> "; getline(cin, itemName);
+    
+    while (itemName != "exit") {
         cout << endl;
         cout << endl << ">> "; getline(cin, itemName);
         for (int i = 0; i < itemName.size(); i++) {
             itemName[i] = tolower(itemName[i]);
         }
-        if (itemName == "exit" || itemName.size() == 0) {
-            break;
-        } else if ((itemName == "read letter" || itemName == "open letter") && hasItem("letter")) {
+        if ((itemName == "read letter" || itemName == "open letter") && hasItem("letter")) {
             cout << endl << "Letter text here";
+        } else if (itemName.size() == 0) {
+            // do nothing
+        } else if (itemName == "exit") {
+            break;
         } else {
             if (hasItem(itemName)) {
                 cout << endl << (inventoryMap.find(itemName)->second)->getDescription();
             } else {
                 cout << endl << "You don't have a " << itemName << ".";
             }
-            
         }
     }
 }

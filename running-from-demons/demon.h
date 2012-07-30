@@ -16,12 +16,12 @@ class Demon {
         void interactRegret(Player *player);
         void interactDespair(Player *player);
         void interactIsolation(Player *player);
-        void interactDistraction(Player *player);
+        void interactDistraction(Player *player, Location *bedroom);
         void interactSelfLoathing(Player *player, Location *location);
     public:
         Demon(string newType, string newDescription, Location *newLocation);
         void interactDread(Player *player);
-        void interact(Player *player, Location *location);
+        void interact(Player *player, Location *street, Location *bedroom);
         string getType();
 };
 

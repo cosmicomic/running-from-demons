@@ -1,7 +1,7 @@
 # Project: running-from-demons
 # Compiler: Default GCC compiler
 # Compiler Type: MingW 3
-# Makefile created by wxDev-C++ IDE 7.4.2.569 on 25/07/12 23:06
+# Makefile created by wxDev-C++ IDE 7.4.2.569 on 30/07/12 16:35
 
 WXLIBNAME = wxmsw29u
 CPP       = g++.exe
