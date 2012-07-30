@@ -37,8 +37,6 @@ void Player::displayInventory() {
     cout << endl << endl << "To examine an item, enter the name of the item.";
     
     string itemName;
-    cout << endl;
-    cout << endl << ">> "; getline(cin, itemName);
     
     while (itemName != "exit") {
         cout << endl;
@@ -51,6 +49,7 @@ void Player::displayInventory() {
         } else if (itemName.size() == 0) {
             // do nothing
         } else if (itemName == "exit") {
+            cout << endl << "You have exited the inventory menu.";
             break;
         } else {
             if (hasItem(itemName)) {
