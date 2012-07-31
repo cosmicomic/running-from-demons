@@ -1,14 +1,14 @@
 # Project: running-from-demons
 # Compiler: Default GCC compiler
 # Compiler Type: MingW 3
-# Makefile created by wxDev-C++ IDE 7.4.2.569 on 30/07/12 16:46
+# Makefile created by wxDev-C++ IDE 7.4.2.569 on 30/07/12 23:07
 
 WXLIBNAME = wxmsw29u
 CPP       = g++.exe
 CC        = gcc.exe
 WINDRES   = "windres.exe"
-OBJ       = Objects/MingW/player.o Objects/MingW/main.o Objects/MingW/location.o Objects/MingW/key.o Objects/MingW/item.o Objects/MingW/exit.o Objects/MingW/demon.o
-LINKOBJ   = "Objects/MingW/player.o" "Objects/MingW/main.o" "Objects/MingW/location.o" "Objects/MingW/key.o" "Objects/MingW/item.o" "Objects/MingW/exit.o" "Objects/MingW/demon.o"
+OBJ       = Objects/MingW/player.o Objects/MingW/main.o Objects/MingW/location.o Objects/MingW/key.o Objects/MingW/item.o Objects/MingW/exit.o Objects/MingW/demon.o Objects/MingW/gamestate.o
+LINKOBJ   = "Objects/MingW/player.o" "Objects/MingW/main.o" "Objects/MingW/location.o" "Objects/MingW/key.o" "Objects/MingW/item.o" "Objects/MingW/exit.o" "Objects/MingW/demon.o" "Objects/MingW/gamestate.o"
 LIBS      = -L"C:/Program Files (x86)/Dev-Cpp/lib/wx/gcc_lib" -L"C:/Program Files (x86)/Dev-Cpp/lib" -L"C:/Program Files (x86)/Dev-Cpp/MinGW32/lib"  
 INCS      = -I"C:/Program Files (x86)/Dev-Cpp/MinGW32/include"
 CXXINCS   = -I"C:/Program Files (x86)/Dev-Cpp/MinGW32/include" -I"C:/Program Files (x86)/Dev-Cpp/" -I"C:/Program Files (x86)/Dev-Cpp/include/common"
@@ -39,7 +39,7 @@ $(BIN): $(OBJ)
 Objects/MingW/player.o: $(GLOBALDEPS) player.cpp player.h location.h item.h player.h key.h location.h item.h
 	$(CPP) -c player.cpp -o Objects/MingW/player.o $(CXXFLAGS)
 
-Objects/MingW/main.o: $(GLOBALDEPS) main.cpp player.h key.h location.h item.h player.h exit.h item.h demon.h location.h player.h location.h
+Objects/MingW/main.o: $(GLOBALDEPS) main.cpp player.h key.h location.h item.h player.h exit.h item.h demon.h location.h player.h location.h gamestate.h
 	$(CPP) -c main.cpp -o Objects/MingW/main.o $(CXXFLAGS)
 
 Objects/MingW/location.o: $(GLOBALDEPS) location.cpp location.h exit.h
@@ -56,3 +56,6 @@ Objects/MingW/exit.o: $(GLOBALDEPS) exit.cpp location.h exit.h
 
 Objects/MingW/demon.o: $(GLOBALDEPS) demon.cpp location.h demon.h location.h player.h
 	$(CPP) -c demon.cpp -o Objects/MingW/demon.o $(CXXFLAGS)
+
+Objects/MingW/gamestate.o: $(GLOBALDEPS) gamestate.cpp gamestate.h
+	$(CPP) -c gamestate.cpp -o Objects/MingW/gamestate.o $(CXXFLAGS)

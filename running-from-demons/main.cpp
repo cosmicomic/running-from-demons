@@ -11,6 +11,7 @@
 #include "item.h"
 #include "demon.h"
 #include "location.h"
+#include "gamestate.h"
 #define STARTING_HEALTH 4 // must be even number
 using namespace std;
 
@@ -20,15 +21,15 @@ int probabilityGenerator(int range);
 bool demonInArea(int chance);
 Demon* getDemon();
 void isolation();
-void demonEncounter(string& user_input, int& notice, int& genOnce, Player *mPlayer, Location *mStreet, Location *mBedroom);
-void resetEncounterData(int& notice, int& genOnce, bool& demonPresent);
-bool commonActions(string user_input, bool demonPresent, Player *player, int notice);
+void demonEncounter(string& user_input, GameState* game, Player *mPlayer, Location *mStreet, Location *mBedroom);
+void resetEncounterData(GameState* game);
+bool commonActions(string user_input, Player *player, GameState* game);
 void help(bool first);
 void getEnter();
 
 // Declare maps
-map<string, Item*> outItems;
 map<string, Key*> outKeys;
+map<string, Location*> locations;
 vector<Demon*> demons;
 
 int main() { 
@@ -110,24 +111,24 @@ int main() {
     Location projectorRoom(name_input, description_input);
     
     //Intialize pointers to locations
-    Location *mStreet = &street;
-    Location *mBedroom = &bedroom;
-    Location *mLibrary = &library;
-    Location *mPark = &park;
-    Location *mStation = &station;
-    Location *mRoad = &road;
-    Location *mHallway = &hallway;
-    Location *mLobby = &lobby;
-    Location *mTheatre = &theatre;
-    Location *mStreetWest = &streetWest;
-    Location *mHill = &hill;
-    Location *mShop = &shop;
-    Location *mPlaza = &plaza;
-    Location *mTower = &tower;
-    Location *mStreetNorth = &streetNorth;
-    Location *mStreetSouthwest = &streetSouthwest;
-    Location *mGarden = &garden;
-    Location *mProjectorRoom = &projectorRoom;
+    Location *mStreet = &street; locations.insert( pair<string, Location*>(mStreet->getName(), mStreet) );
+    Location *mBedroom = &bedroom; locations.insert( pair<string, Location*>(mBedroom->getName(), mBedroom) );
+    Location *mLibrary = &library; locations.insert( pair<string, Location*>(mLibrary->getName(), mLibrary) );
+    Location *mPark = &park; locations.insert( pair<string, Location*>(mPark->getName(), mPark) );
+    Location *mStation = &station; locations.insert( pair<string, Location*>(mStation->getName(), mStation) );
+    Location *mRoad = &road; locations.insert( pair<string, Location*>(mRoad->getName(), mRoad) );
+    Location *mHallway = &hallway; locations.insert( pair<string, Location*>(mHallway->getName(), mHallway) );
+    Location *mLobby = &lobby; locations.insert( pair<string, Location*>(mLobby->getName(), mLobby) );
+    Location *mTheatre = &theatre; locations.insert( pair<string, Location*>(mTheatre->getName(), mTheatre) );
+    Location *mStreetWest = &streetWest; locations.insert( pair<string, Location*>(mStreetWest->getName(), mStreetWest) );
+    Location *mHill = &hill; locations.insert( pair<string, Location*>(mHill->getName(), mHill) );
+    Location *mShop = &shop; locations.insert( pair<string, Location*>(mShop->getName(), mShop) );
+    Location *mPlaza = &plaza; locations.insert( pair<string, Location*>(mPlaza->getName(), mPlaza) );
+    Location *mTower = &tower; locations.insert( pair<string, Location*>(mTower->getName(), mTower) );
+    Location *mStreetNorth = &streetNorth; locations.insert( pair<string, Location*>(mStreetNorth->getName(), mStreetNorth) );
+    Location *mStreetSouthwest = &streetSouthwest; locations.insert( pair<string, Location*>(mStreetSouthwest->getName(), mStreetSouthwest) );
+    Location *mGarden = &garden; locations.insert( pair<string, Location*>(mGarden->getName(), mGarden) );
+    Location *mProjectorRoom = &projectorRoom; locations.insert( pair<string, Location*>(mProjectorRoom->getName(), mProjectorRoom) );
        
     //Initialize player character
     Player player(mBedroom, STARTING_HEALTH);
@@ -163,36 +164,72 @@ int main() {
     // Intialize non-key items
     Item crowbar("crowbar", "A piece of cast iron, shaped like a crow's foot at one end.", mTower);
     Item *mCrowbar = &crowbar;
-    outItems.insert( pair<string, Item*>(mCrowbar->getName(), mCrowbar) );
     
     Item battery("battery", "It's a 9-volt battery.", mHill);
     Item *mBattery = &battery;
-    outItems.insert( pair<string, Item*>(mBattery->getName(), mBattery) );
     
     Item key("key", "A small, slightly rusty key.", mHill);
     Item *mKey = &key;
-    outItems.insert( pair<string, Item*>(mKey->getName(), mKey) );
     
     Item videotape("videotape", "It's a VHS cassette.", mLobby);
     Item *mVideotape = &videotape;
-    outItems.insert( pair<string, Item*>(mVideotape->getName(), mVideotape) );
     
-    // Intialize misc stuff
+    // Title screen
+    cout << endl << "Running from Demons: a text adventure game" << endl << "by Crystal Liang" << endl << "dedicated to Michael Lee"
+    << endl << endl << endl << endl;
+    
+    // Initialize game state and misc. stuff
     string user_input;
-    int genOnce = 0;
-    int notice = 0;
-    int giveHint = 0;
     srand(time(NULL));
-    bool demonPresent = false;
-    bool videotapeOn = false;
-    bool pathOpen = false;
-    bool batteryIn = false;
-    bool labOn = false;
-    bool doorOpen = false;
-    bool childOnce = false;
-    bool pastTurnstile = false;
-    bool descripOnce = true;
-    bool iOnce = true;
+    
+    ifstream saveFile("savefile.txt");
+    
+    GameState game = NULL;
+    GameState *mGame = &game;
+    
+    if (saveFile.good()) {
+        cout << "Press \'n\' for a new game. Press \'c\' to continue a preexiting game. ";
+        getline(cin, user_input);
+        
+        while (!(user_input == "n" || user_input == "N" || user_input == "c" || user_input == "C")) {
+            cout << endl << "Invalid input. Must be either \'n\' or \'c\'.";
+        }
+        
+        if (user_input == "n" || user_input == "N") {
+            game = GameState(true);
+        } else {
+            game = GameState(false);
+            mPlayer->setLocation(locations.find(mGame->getLocation())->second);
+            
+            if (mGame->getInventory().find("telescope")) {
+                mPlayer->addToInventory(mTelescope);
+                outKeys.erase("telescope");
+            } else if (mGame->getInventory().find("lab")) {
+                mPlayer->addToInventory(mLab);
+                outKeys.erase("lab");
+            } else if (mGame->getInventory().find("letter")) {
+                mPlayer->addToInventory(mLetter);
+                outKeys.erase("letter");
+            } else if (mGame->getInventory().find("daisy chain")) {
+                mPlayer->addToInventory(mDaisyChain);
+                outKeys.erase("daisy chain");
+            } else if (mGame->getInventory().find("memory")) {
+                mPlayer->addToInventory(mMemory);
+                outKeys.erase("memory");
+            } else if (mGame->getInventory().find("crowbar")) {
+                mPlayer->addToInventory(mCrowbar);
+            } else if (mGame->getInventory().find("battery")) {
+                mPlayer->addToInventory(mBattery);
+            } else if (mGame->getInventory().find("key")) {
+                mPlayer->addToInventory(mKey);
+            } else if (mGame->getInventory().find("videotape")) {
+                mPlayer->addToInventory(mVideotape);
+            }
+                
+        }      
+    } else {
+        GameState game(true);
+    }
     
     //Initialize demons
     Demon dreadDemon("dread", "description", mBedroom);
@@ -230,14 +267,6 @@ int main() {
     ifstream intro("intro.txt");
     char intro_input[1000];
     
-    cout << endl << "Running from Demons: a text adventure game" << endl << "by Crystal Liang" << endl << "dedicated to Michael Lee" 
-    << endl << endl << endl << "Press \'e\' and \'ENTER\' to begin. ";
-    getline(cin, user_input);
-    
-    while (user_input != "e") {
-        getline(cin, user_input);
-    }
-    
     while (!intro.eof()) {
         intro.getline(intro_input, 1000, '#');
         cout << endl << intro_input;
@@ -264,11 +293,11 @@ int main() {
                 break;
             } else {
                 cout << endl << "It's no use; you can't get up.";
-                giveHint++;
+                (mGame->giveHint)++;
             }
         }
         
-        if (giveHint == 10) {
+        if (mGame->giveHint == 10) {
             cout << endl << endl << "You can feel something in your pocket.";
         }
     }
@@ -281,7 +310,7 @@ int main() {
         while (mPlayer->getLocation() == mBedroom && mPlayer->getHealth() > 0) {
             getUserInput(user_input);
             
-            if (!commonActions(user_input, demonPresent, mPlayer, notice)) {
+            if (!commonActions(user_input, mPlayer, mGame)) {
                 if (user_input == "get up" && mPlayer->getImmobilized()) {
                     mPlayer->setImmobilized(false);
                     cout << endl << "You get up from the bed.";
@@ -367,7 +396,7 @@ int main() {
         while (mPlayer->getLocation() == mHallway && mPlayer->getHealth() > 0) {
             getUserInput(user_input);
             
-            if (!commonActions(user_input, demonPresent, mPlayer, notice)) {
+            if (!commonActions(user_input, mPlayer, mGame)) {
                 if (user_input == "east" || user_input == "go down stairs" || user_input == "go downstairs" || user_input == "descend stairs") {
                     mPlayer->setLocation(mLobby);
                 } else if (user_input == "south") {
@@ -409,19 +438,19 @@ int main() {
         
         // lobby
         while (mPlayer->getLocation() == mLobby && mPlayer->getHealth() > 0) {
-            if (genOnce == 0) {
-                demonPresent = demonInArea(lobbyProb);
-                genOnce++;
+            if (mGame->genOnce == 0) {
+                mGame->demonPresent = demonInArea(lobbyProb);
+                mGame->genOnce++;
             }
             
             getUserInput(user_input);
             
-            if (!commonActions(user_input, demonPresent, mPlayer, notice)) {
+            if (!commonActions(user_input, mPlayer, mGame)) {
                 if (user_input == "west") {
-                    resetEncounterData(notice, genOnce, demonPresent);
+                    resetEncounterData(mGame);
                     mPlayer->setLocation(mStreet);
                 } else if (user_input == "south" || user_input == "go up stairs" || user_input == "go upstairs" || user_input == "ascend stairs") {
-                    resetEncounterData(notice, genOnce, demonPresent);
+                    resetEncounterData(mGame);
                     mPlayer->setLocation(mHallway);
                 } else if (user_input == "examine mailboxes") {
                     cout << endl << "On closer inspection, all of the mailboxes, save one,"
@@ -449,7 +478,7 @@ int main() {
                     } else {
                         cout << endl << "You need the key.";
                     }
-                } else if (user_input == "hide" && demonPresent && notice == 0) {
+                } else if (user_input == "hide" && mGame->demonPresent && mGame->notice == 0) {
                     cout << endl << "You hide. The demon mills about, oblivious to your presence.";
                     continue;
                 } else if (user_input == "examine mailbox" || user_input == "open mailbox") {
@@ -470,38 +499,38 @@ int main() {
                 }
             }
             
-            if (demonPresent) { 
-                demonEncounter(user_input, notice, genOnce, mPlayer, mStreet, mBedroom);
+            if (mGame->demonPresent) { 
+                demonEncounter(user_input, mGame, mPlayer, mStreet, mBedroom);
             }
         }
         
         // street
         while (mPlayer->getLocation() == mStreet && mPlayer->getHealth() > 0) {
-            if (genOnce == 0) {
-                demonPresent = demonInArea(streetProb);
-                genOnce++;
+            if (mGame->genOnce == 0) {
+                mGame->demonPresent = demonInArea(streetProb);
+                mGame->genOnce++;
             }
             
             getUserInput(user_input);
             
-            if (!commonActions(user_input, demonPresent, mPlayer, notice)) {
+            if (!commonActions(user_input, mPlayer, mGame)) {
                 if (user_input == "east") {
-                    resetEncounterData(notice, genOnce, demonPresent);
+                    resetEncounterData(mGame);
                     mPlayer->setLocation(mPark);
                 } else if (user_input == "west") {
-                    resetEncounterData(notice, genOnce, demonPresent);
+                    resetEncounterData(mGame);
                     mPlayer->setLocation(mStreetWest);
                 } else if (user_input == "south" || user_input == "enter my building" || user_input == "enter my apartment building") {
-                    resetEncounterData(notice, genOnce, demonPresent);
+                    resetEncounterData(mGame);
                     mPlayer->setLocation(mLobby);
                 } else if (user_input == "north") {
-                    resetEncounterData(notice, genOnce, demonPresent);
+                    resetEncounterData(mGame);
                     mPlayer->setLocation(mStreetNorth);
                 } else if (user_input == "enter apartment building" || user_input == "enter apartment buildings") {
                     cout << endl << "It's locked. They're all locked.";
                 } else if (user_input == "enter building" || user_input == "enter buildings") {
                     cout << endl << "Which building?";
-                } else if (user_input == "hide" && demonPresent && notice == 0) {
+                } else if (user_input == "hide" && mGame->demonPresent && mGame->notice == 0) {
                     cout << endl << "You hide. The demon mills about, oblivious to your presence.";
                     continue;
                 } else {
@@ -509,19 +538,19 @@ int main() {
                 }
             }
             
-            if (demonPresent) { 
-                demonEncounter(user_input, notice, genOnce, mPlayer, mStreet, mBedroom);
+            if (mGame->demonPresent) { 
+                demonEncounter(user_input, mGame, mPlayer, mStreet, mBedroom);
             }
         }
         
         // park
         while (mPlayer->getLocation() == mPark && mPlayer->getHealth() > 0) {
-            if (genOnce == 0) {
-                demonPresent = demonInArea(parkProb);
-                genOnce++;
+            if (mGame->genOnce == 0) {
+                mGame->demonPresent = demonInArea(parkProb);
+                mGame->genOnce++;
             }
             
-            if (childOnce == false && labOn) {
+            if (mGame->childOnce == false && mGame->labOn) {
                 cin.get();
                 cout << endl << "As you enter a park, you find a child there waiting for you; strange, as you haven't hitherto met anyone in the city. "
                 << "The child beckons you to follow, and leads you through a small gap in a hedge leading into the woods. "
@@ -533,15 +562,15 @@ int main() {
                 mPlayer->setLocation(mGarden);
                 mPlayer->addToInventory(mDaisyChain);
                 outKeys.erase("daisy chain");
-                childOnce = true;
+                mGame->childOnce = true;
                 continue;
             }
             
             getUserInput(user_input);
             
-            if (!commonActions(user_input, demonPresent, mPlayer, notice)) {
+            if (!commonActions(user_input, mPlayer, mGame)) {
                 if (user_input == "west") {
-                    resetEncounterData(notice, genOnce, demonPresent);
+                    resetEncounterData(mGame);
                     mPlayer->setLocation(mStreet);
                 } else if (user_input == "pick flower" || user_input == "pick red flower" || user_input == "pick flowers" || user_input == "pick red flowers") {
                     cout << endl << "You pick a small, red flower.";
@@ -549,7 +578,7 @@ int main() {
                     cout << endl << "It crumbles to ash in your hand.";
                 } else if (user_input == "climb tree") {
                     cout << endl << "The bark shrivels at your touch. You fail to gain more than a few feet before falling.";
-                } else if (user_input == "hide" && demonPresent && notice == 0) {
+                } else if (user_input == "hide" && mGame->demonPresent && mGame->notice == 0) {
                     cout << endl << "You hide. The demon mills about, oblivious to your presence.";
                     continue;
                 } else if (user_input == "north" || user_input == "south" || user_input == "east") {
@@ -576,36 +605,36 @@ int main() {
                 }
             }
             
-            if (demonPresent) { 
-                demonEncounter(user_input, notice, genOnce, mPlayer, mStreet, mBedroom);
+            if (mGame->demonPresent) { 
+                demonEncounter(user_input, mGame, mPlayer, mStreet, mBedroom);
             }
         }
         
         // street - west
         while (mPlayer->getLocation() == mStreetWest && mPlayer->getHealth() > 0) {
-            if (genOnce == 0) {
-                demonPresent = demonInArea(altStreetProb);
-                genOnce++;
+            if (mGame->genOnce == 0) {
+                mGame->demonPresent = demonInArea(altStreetProb);
+                mGame->genOnce++;
             }
             
             getUserInput(user_input);
             
-            if (!commonActions(user_input, demonPresent, mPlayer, notice)) {
+            if (!commonActions(user_input, mPlayer, mGame)) {
                 if (user_input == "east") {
-                    resetEncounterData(notice, genOnce, demonPresent);
+                    resetEncounterData(mGame);
                     mPlayer->setLocation(mStreet);
                 } else if (user_input == "north") {
-                    resetEncounterData(notice, genOnce, demonPresent);
+                    resetEncounterData(mGame);
                     mPlayer->setLocation(mLibrary);
                 } else if (user_input == "south") {
-                    resetEncounterData(notice, genOnce, demonPresent);
+                    resetEncounterData(mGame);
                     mPlayer->setLocationNoDescrip(mStreetSouthwest);
                 } else if (user_input == "west") {
-                    resetEncounterData(notice, genOnce, demonPresent);
+                    resetEncounterData(mGame);
                     mPlayer->setLocation(mPlaza);
                 } else if (user_input == "enter apartment building" || user_input == "enter apartment buildings") {
                     cout << endl << "It's locked. They're all locked.";
-                } else if (user_input == "hide" && demonPresent && notice == 0) {
+                } else if (user_input == "hide" && mGame->demonPresent && mGame->notice == 0) {
                     cout << endl << "You hide. The demon mills about, oblivious to your presence.";
                     continue;
                 } else {
@@ -613,23 +642,23 @@ int main() {
                 }
             }
             
-            if (demonPresent) { 
-                demonEncounter(user_input, notice, genOnce, mPlayer, mStreet, mBedroom);
+            if (mGame->demonPresent) { 
+                demonEncounter(user_input, mGame, mPlayer, mStreet, mBedroom);
             }
         }
         
         // library
         while (mPlayer->getLocation() == mLibrary && mPlayer->getHealth() > 0) {
-            if (genOnce == 0) {
-                demonPresent = demonInArea(libraryProb);
-                genOnce++;
+            if (mGame->genOnce == 0) {
+                mGame->demonPresent = demonInArea(libraryProb);
+                mGame->genOnce++;
             }
             
             getUserInput(user_input);
             
-            if (!commonActions(user_input, demonPresent, mPlayer, notice)) {
+            if (!commonActions(user_input, mPlayer, mGame)) {
                 if (user_input == "south") {
-                    resetEncounterData(notice, genOnce, demonPresent);
+                    resetEncounterData(mGame);
                     mPlayer->setLocation(mStreetWest);
                 } else if (user_input == "examine red book") {
                     cout << endl << "The book seems to beam at you, as if it is delighted to see you after a long, painful period of separation.";
@@ -644,7 +673,7 @@ int main() {
                     } else {
                         cout << endl << "The red book has crumbled to dust.";
                     }
-                } else if (user_input == "hide" && demonPresent && notice == 0) {
+                } else if (user_input == "hide" && mGame->demonPresent && mGame->notice == 0) {
                     cout << endl << "You hide. The demon mills about, oblivious to your presence.";
                     continue;
                 } else if (user_input == "examine book" || user_input == "take book" || user_input == "remove book" || user_input == "pick up book" || user_input == "pick up books") {
@@ -663,55 +692,55 @@ int main() {
                 }
             }
             
-            if (demonPresent) { 
-                demonEncounter(user_input, notice, genOnce, mPlayer, mStreet, mBedroom);
+            if (mGame->demonPresent) { 
+                demonEncounter(user_input, mGame, mPlayer, mStreet, mBedroom);
             }
         }
         
         // theatre
         while (mPlayer->getLocation() == mTheatre && mPlayer->getHealth() > 0) {
-            if (genOnce == 0) {
-                demonPresent = demonInArea(theatreProb);
-                genOnce++;
+            if (mGame->genOnce == 0) {
+                mGame->demonPresent = demonInArea(theatreProb);
+                mGame->genOnce++;
             }
             
-            if (videotapeOn == true) {
+            if (mGame->videotapeOn == true) {
                 cout << endl << endl << "It looks like the video is about to start. Why don't you have a seat over there? (in the chair?)";
             }
             
             getUserInput(user_input);
             
-            if (!commonActions(user_input, demonPresent, mPlayer, notice)) {
-                if (user_input == "hide" && demonPresent && notice == 0) {
+            if (!commonActions(user_input, mPlayer, mGame)) {
+                if (user_input == "hide" && mGame->demonPresent && mGame->notice == 0) {
                     cout << endl << "You hide. The demon mills about, oblivious to your presence.";
                     continue;
                 } else if (user_input == "enter door" || user_input == "open door" ||user_input == "go through door" || user_input == "go through doorway" || user_input == "enter doorway") {
                     cout << endl << "You open the door and find a flight of stairs.";
-                    doorOpen = true;
+                    mGame->doorOpen = true;
                 } else if (user_input == "go up stairs" || user_input == "climb stairs" || user_input == "climb up stairs" || user_input == "go upstairs") {
-                    if (!doorOpen) {
+                    if (!mGame->doorOpen) {
                         cout << endl << "There's a door in the way.";
                     } else {
-                        resetEncounterData(notice, genOnce, demonPresent);
+                        resetEncounterData(mGame);
                         mPlayer->setLocation(mProjectorRoom);
                     }
                 } else if (user_input == "east") {
-                    resetEncounterData(notice, genOnce, demonPresent);
+                    resetEncounterData(mGame);
                     mPlayer->setLocation(mPlaza);
                 } else if (user_input == "sit in chair" || user_input == "sit down in chair" || user_input == "sit on chair" || user_input == "sit down on chair") {
-                    if (videotapeOn) {
+                    if (mGame->videotapeOn) {
                         cout << endl << "You sit in the chair and focus your attention on the video.";
                         getEnter();
                         cout << endl << "The film starts. You are slow to recognize it, but when you do, it is unmistakable."
                         << " It is a film of the greatest, most perfect day of your life.";
                         mPlayer->addToInventory(mMemory);
                         outKeys.erase("memory");
-                        videotapeOn = false;
+                        mGame->videotapeOn = false;
                     } else {
                         cout << endl << "You sit in the chair and gaze absentmindedly at the blank grey screen.";
                     }
                 } else if (user_input == "sit" || user_input == "sit down") {
-                    if (videotapeOn) {
+                    if (mGame->videotapeOn) {
                         cout << endl << "You sit down on the cold, concrete floor. You can't get a good view of the video from here, and your bottom starts to hurt. You get up.";
                     } else {
                         cout << endl << "You sit down on the cold, concrete floor. Your bottom starts to hurt. You get up.";
@@ -725,7 +754,7 @@ int main() {
                 } else if (user_input == "examine seats") {
                     cout << endl << "The proper movie seats have been ripped from their places and scattered onto the floor. The red fabric is faded and ripped.";
                 } else if (user_input == "examine screen") {
-                    if (videotapeOn) {
+                    if (mGame->videotapeOn) {
                         cout << endl << "The movie is starting. You should probably take a seat over there, in the chair.";
                     } else {
                         cout << endl << "It's a blank, silver screen.";
@@ -736,8 +765,8 @@ int main() {
                 }
             }
             
-            if (demonPresent) { 
-                demonEncounter(user_input, notice, genOnce, mPlayer, mStreet, mBedroom);
+            if (mGame->demonPresent) { 
+                demonEncounter(user_input, mGame, mPlayer, mStreet, mBedroom);
             }
         }
         
@@ -745,13 +774,13 @@ int main() {
         while (mPlayer->getLocation() == mProjectorRoom && mPlayer->getHealth() > 0) {
             getUserInput(user_input);
             
-            if (!commonActions(user_input, demonPresent, mPlayer, notice)) {
+            if (!commonActions(user_input, mPlayer, mGame)) {
                 if (user_input == "put videotape in vcr" || user_input == "play videotape" || user_input == "play videotape in vcr") {
                     if (mPlayer->hasItem("videotape")) {
                         cout << endl << "The VCR makes some whirring and clicking noises. The projector flickers on. "
                         << "Strangely, the machine spits the videotape out and back at you. Mystified, you take the videotape back and put it in your pocket."
                         << endl << endl << "The projector is still on, and the machine is still running. You should probably check things out downstairs.";
-                        videotapeOn = true;
+                        mGame->videotapeOn = true;
                     } else {
                         cout << endl << "You haven't got a videotape.";
                     }
@@ -783,7 +812,7 @@ int main() {
         while (mPlayer->getLocation() == mHill && mPlayer->getHealth() > 0) {
             getUserInput(user_input);
             
-            if (!commonActions(user_input, demonPresent, mPlayer, notice)) {
+            if (!commonActions(user_input, mPlayer, mGame)) {
                 if (user_input == "take battery" || user_input == "pick up battery") {
                     if (mPlayer->hasItem("battery")) {
                         cout << endl << "You already have the battery.";
@@ -833,39 +862,39 @@ int main() {
         
         // shop
         while (mPlayer->getLocation() == mShop && mPlayer->getHealth() > 0) {
-            if (genOnce == 0) {
-                demonPresent = demonInArea(shopProb);
-                genOnce++;
+            if (mGame->genOnce == 0) {
+                mGame->demonPresent = demonInArea(shopProb);
+                mGame->genOnce++;
             }
             
             getUserInput(user_input);
             
-            if (!commonActions(user_input, demonPresent, mPlayer, notice)) {
-                if (user_input == "hide" && demonPresent && notice == 0) {
+            if (!commonActions(user_input, mPlayer, mGame)) {
+                if (user_input == "hide" && mGame->demonPresent && mGame->notice == 0) {
                     cout << endl << "You hide. The demon mills about, oblivious to your presence.";
                     continue;
                 } else if (user_input == "south") {
-                    resetEncounterData(notice, genOnce, demonPresent);
+                    resetEncounterData(mGame);
                     mPlayer->setLocation(mPlaza);
                 } else if (user_input == "examine device" || user_input == "examine rectangular device") {
                     cout << endl << "The device is an old, defunct electronic lab. On closer inspection, though, it looks like the only problem is that it's missing the battery. You could probably fit the device in your pocket.";
                 } else if (user_input == "put battery in device" || user_input == "put battery in lab") {
                     if (mPlayer->hasItem("battery")) {
                         cout << endl << "You put the battery in the device.";
-                        batteryIn = true;
+                        mGame->batteryIn = true;
                     } else {
                         cout << endl << "You don't have a battery.";
                     }
                 } else if (user_input == "turn device on" || user_input == "turn lab on" || user_input == "use device" || user_input == "activate device"
                            || user_input == "turn on device" || user_input == "turn on lab" || user_input == "use lab" || user_input == "activate lab") {
-                    if (batteryIn) {
+                    if (mGame->batteryIn) {
                         cout << endl << "The lab flickers on.";
-                        labOn = true;
+                        mGame->labOn = true;
                     } else {
                         cout << endl << "Nothing happens; there's no battery.";
                     }
                 } else if (user_input == "take device" || user_input == "take lab") {
-                    if (labOn) {
+                    if (mGame->labOn) {
                         cout << endl << "With a great deal of strain and effort, you manage to shoehorn the lab into your absurdly capacious pocket.";
                         mPlayer->addToInventory(mLab);
                         outKeys.erase("lab");
@@ -889,41 +918,41 @@ int main() {
                 }
             }
             
-            if (demonPresent) { 
-                demonEncounter(user_input, notice, genOnce, mPlayer, mStreet, mBedroom);
+            if (mGame->demonPresent) { 
+                demonEncounter(user_input, mGame, mPlayer, mStreet, mBedroom);
             }
         }
         
         // plaza
         while (mPlayer->getLocation() == mPlaza && mPlayer->getHealth() > 0) {
-            if (genOnce == 0) {
-                demonPresent = demonInArea(plazaProb);
-                genOnce++;
+            if (mGame->genOnce == 0) {
+                mGame->demonPresent = demonInArea(plazaProb);
+                mGame->genOnce++;
             }
             
             getUserInput(user_input);
             
-            if (!commonActions(user_input, demonPresent, mPlayer, notice)) {
-                if (user_input == "hide" && demonPresent && notice == 0) {
+            if (!commonActions(user_input, mPlayer, mGame)) {
+                if (user_input == "hide" && mGame->demonPresent && mGame->notice == 0) {
                     cout << endl << "You hide. The demon mills about, oblivious to your presence.";
                     continue;
                 } else if (user_input == "east") {
-                    resetEncounterData(notice, genOnce, demonPresent);
+                    resetEncounterData(mGame);
                     mPlayer->setLocation(mStreetWest);
                 } else if (user_input == "west") {
-                    resetEncounterData(notice, genOnce, demonPresent);
+                    resetEncounterData(mGame);
                     mPlayer->setLocation(mTheatre);
                 } else if (user_input == "north") {
-                    resetEncounterData(notice, genOnce, demonPresent);
+                    resetEncounterData(mGame);
                     mPlayer->setLocation(mShop);
                 } else if (user_input == "examine fence") {
                     cout << endl << "It's a simple, rusty chain link fence... hmm, it looks like there's a small gap to the south. Too small for you to fit through, though (at least in its current state)."
                     << " You might be able to enlarge the gap by beating the fence with a crowbar or something like that...";
                 } else if (user_input == "use crowbar on fence" || user_input == "hit fence using crowbar" || user_input == "hit fence with crowbar" || user_input == "beat fence with crowbar") {
                     if (mPlayer->hasItem("crowbar")) {
-                        if (!pathOpen) {
+                        if (!mGame->pathOpen) {
                             cout << endl << "You batter the edges of the gap with your crowbar until it is sufficiently large to crawl through. It looks like there's some kind of path leading into the wilderness to the south.";
-                            pathOpen = true;
+                            mGame->pathOpen = true;
                         } else {
                             cout << endl << "You've already used the crowbar on the fence.";
                         }
@@ -931,10 +960,10 @@ int main() {
                         cout << endl << "You don't have a crowbar.";
                     }
                 } else if (user_input == "south" || user_input == "go down path") {
-                    if (pathOpen) {
+                    if (mGame->pathOpen) {
                         cout << endl << "You crawl through the newly enlarged gap in the fence and follow the path. The path is surprisingly long, and winds every which way through the woods."
                         << " The path is, in fact, so long that, by the time you reach its end, it's nighttime." << endl;
-                        resetEncounterData(notice, genOnce, demonPresent);
+                        resetEncounterData(mGame);
                         getEnter();
                         mPlayer->setLocation(mHill);
                     } else {
@@ -961,8 +990,8 @@ int main() {
                 }
             }
             
-            if (demonPresent) { 
-                demonEncounter(user_input, notice, genOnce, mPlayer, mStreet, mBedroom);
+            if (mGame->demonPresent) { 
+                demonEncounter(user_input, mGame, mPlayer, mStreet, mBedroom);
             }
         }
         
@@ -971,9 +1000,9 @@ int main() {
             
             getUserInput(user_input);
             
-            if (!commonActions(user_input, demonPresent, mPlayer, notice)) {
+            if (!commonActions(user_input, mPlayer, mGame)) {
                 if (user_input == "south") {
-                    resetEncounterData(notice, genOnce, demonPresent);
+                    resetEncounterData(mGame);
                     mPlayer->setLocation(mStreetNorth);
                 } else if (user_input == "take crowbar" || user_input == "pick up crowbar") {
                     cout << endl << "You pick up the crowbar and somehow manage to fit it in your pocket.";
@@ -990,22 +1019,22 @@ int main() {
         
         // street - north
         while (mPlayer->getLocation() == mStreetNorth && mPlayer->getHealth() > 0) {
-            if (genOnce == 0) {
-                demonPresent = demonInArea(altStreetProb);
-                genOnce++;
+            if (mGame->genOnce == 0) {
+                mGame->demonPresent = demonInArea(altStreetProb);
+                mGame->genOnce++;
             }
             
             getUserInput(user_input);
             
-            if (!commonActions(user_input, demonPresent, mPlayer, notice)) {
-                if (user_input == "hide" && demonPresent && notice == 0) {
+            if (!commonActions(user_input, mPlayer, mGame)) {
+                if (user_input == "hide" && mGame->demonPresent && mGame->notice == 0) {
                     cout << endl << "You hide. The demon mills about, oblivious to your presence.";
                     continue;
                 } else if (user_input == "north") {
-                    resetEncounterData(notice, genOnce, demonPresent);
+                    resetEncounterData(mGame);
                     mPlayer->setLocation(mTower);
                 } else if (user_input == "south") {
-                    resetEncounterData(notice, genOnce, demonPresent);
+                    resetEncounterData(mGame);
                     mPlayer->setLocation(mStreet);
                 } else if (user_input == "west" || user_input == "east") {
                     cout << endl << "You can't go that way.";
@@ -1016,15 +1045,15 @@ int main() {
                 }
             }
             
-            if (demonPresent) { 
-                demonEncounter(user_input, notice, genOnce, mPlayer, mStreet, mBedroom);
+            if (mGame->demonPresent) { 
+                demonEncounter(user_input, mGame, mPlayer, mStreet, mBedroom);
             }
         }
         
         // street - southwest
         while (mPlayer->getLocation() == mStreetSouthwest && mPlayer->getHealth() > 0) {
             
-            if (descripOnce) {
+            if (mGame->descripOnce) {
                 cout << endl << "Street - Southwest" << endl << endl
                 << "This street resembles the other streets. It comes to a dead end to the south; at the end is the train station.";
                 cin.get();
@@ -1037,19 +1066,19 @@ int main() {
                 } else {
                     cout << endl << "The train station appears to be completely clear of any threatening entities.";
                 }
-                descripOnce = false;
+                mGame->descripOnce = false;
             }
             
             getUserInput(user_input);
             
-            if (!commonActions(user_input, demonPresent, mPlayer, notice)) {
-                if (user_input == "hide" && demonPresent && notice == 0) {
+            if (!commonActions(user_input, mPlayer, mGame)) {
+                if (user_input == "hide" && mGame->demonPresent && mGame->notice == 0) {
                     cout << endl << "You hide. The demon mills about, oblivious to your presence.";
                     continue;
                 } else if (user_input == "north") {
-                    resetEncounterData(notice, genOnce, demonPresent);
+                    resetEncounterData(mGame);
                     mPlayer->setLocation(mStreetWest);
-                    descripOnce = true;
+                    mGame->descripOnce = true;
                 } else if (user_input == "south" || user_input == "approach mass" || user_input == "approach shadows") {
                     if (outKeys.size() == 5 || outKeys.size() == 4) {
                         cout << endl << "Slowly, you approach the umbral leviathan which almost seems to swallow the train station in shadow. As you get closer, "
@@ -1078,7 +1107,7 @@ int main() {
         while (mPlayer->getLocation() == mGarden && mPlayer->getHealth() > 0) {
             getUserInput(user_input);
             
-            if (!commonActions(user_input, demonPresent, mPlayer, notice)) {
+            if (!commonActions(user_input, mPlayer, mGame)) {
                 if (user_input == "northwest") {
                     mPlayer->setLocation(mPark);
                 } else if (user_input == "north" || user_input == "south" || user_input == "west" || user_input == "east") {
@@ -1112,7 +1141,7 @@ int main() {
         while (mPlayer->getLocation() == mStation && mPlayer->getHealth() > 0) {
             getUserInput(user_input);
             
-            if (!commonActions(user_input, demonPresent, mPlayer, notice)) {
+            if (!commonActions(user_input, mPlayer, mGame)) {
                 if (user_input == "north") {
                     mPlayer->setLocation(mStreetSouthwest);
                 } else if (user_input == "examine turnstile" || user_input == "examine turnstiles") {
@@ -1121,9 +1150,9 @@ int main() {
                            || user_input == "walk past turnstile" || user_input == "walk past turnstiles" || user_input == "walk by turnstiles" || user_input == "walk by turnstile") {
                     cout << endl << "You push down the metal rods of one of the turnstiles, and pass through to the platform. The entrance to the train lies invitingly "
                     << "a few yards before you.";
-                    pastTurnstile = true;
+                    mGame->pastTurnstile = true;
                 } else if (user_input == "enter train" || user_input == "go through train door") {
-                    if (!pastTurnstile) {
+                    if (!mGame->pastTurnstile) {
                         cout << endl << "You can't enter the train if you're not past the turnstiles.";
                     } else {
                         cout << endl << "You step through the train door, which closes behind you. The train is well-lit, with a lavendar carpet and leather seats. You sit down, "
@@ -1215,35 +1244,35 @@ Demon* getDemon() {
     return demons[d];
 }
 
-void demonEncounter(string& user_input, int& notice, int& genOnce, Player *mPlayer, Location *mStreet, Location *mBedroom) {
-    if (user_input == "hide" && notice > 0) {
-            if (notice == 1) {
+void demonEncounter(string& user_input, GameState* game, Player *mPlayer, Location *mStreet, Location *mBedroom) {
+    if (user_input == "hide" && game->notice > 0) {
+            if (game->notice == 1) {
                 int n = probabilityGenerator(100);
                 if (n < 90) {
                     cout << endl << "...";
                     cin.get();
                     cout << endl << "The demon shrugs and walks away.";
-                    notice = 0;
+                    game->notice = 0;
                 } else {
                     cout << endl << "...";
                     cin.get();
                     cout << endl << "The demon is staring right at you now.";
-                    notice++;
+                    game->notice++;
                 }
-            } else if (notice == 2) {
+            } else if (game->notice == 2) {
                 int n = probabilityGenerator(100);
                 if (n < 70) {
                     cout << endl << "...";
                     cin.get();
                     cout << endl << "The demon shrugs and walks away.";
-                    notice = 0;
+                    game->notice = 0;
                 } else {
                     cout << endl << "...";
                     cin.get();
                     cout << endl << "The demon approaches.";
-                    notice++;
+                    game->notice++;
                 }
-            } else if (notice == 3) {
+            } else if (game->notice == 3) {
                 cout << endl << "No use now; the demon is attacking.";
             } 
         } else if (user_input == "fight demon" || user_input == "attack demon" || user_input == "kill demon" || user_input == "punch demon") {
@@ -1252,27 +1281,27 @@ void demonEncounter(string& user_input, int& notice, int& genOnce, Player *mPlay
             cout << endl << endl << "...";
             cin.get();
             (getDemon())->interact(mPlayer, mStreet, mBedroom);
-            notice = 0;
-            genOnce = 0;
+            game->notice = 0;
+            game->genOnce = 0;
             return;
         } else if (user_input == "look at demon" || user_input == "examine demon") {
             cout << endl << "As soon as you lay your gaze on the demon, it whips its head round to stare straight back at you. The enormous eyes, with its black scleras and "
             << "white irises, mesmerize you.";
-            notice = 2;
+            game->notice = 2;
         } else {
             int p = probabilityGenerator(100);
-            if (p < 33 && notice == 0) {
-                notice++;
-            } else if (notice == 1) {
-                notice++;
-            } else if (notice == 2) {
+            if (p < 33 && game->notice == 0) {
+                game->notice++;
+            } else if (game->notice == 1) {
+                game->notice++;
+            } else if (game->notice == 2) {
                 cout << endl << "The demon approaches.";
-                notice++;
+                game->notice++;
             }
         }
         
-        if (!(user_input == "hide") || notice == 3) {
-            switch (notice) {
+        if (!(user_input == "hide") || game->notice == 3) {
+            switch (game->notice) {
                 case 0:
                     break;
                 case 1:
@@ -1288,20 +1317,20 @@ void demonEncounter(string& user_input, int& notice, int& genOnce, Player *mPlay
                     cout << endl << "...";
                     cin.get();
                     (getDemon())->interact(mPlayer, mStreet, mBedroom);
-                    notice = 0;
-                    genOnce = 0;
+                    game->notice = 0;
+                    game->genOnce = 0;
                     return;
             }
         }
 }
 
-void resetEncounterData(int& notice, int& genOnce, bool& demonPresent) {
-    notice = 0;
-    genOnce = 0;
-    demonPresent = false;
+void resetEncounterData(GameState *game) {
+    game->notice = 0;
+    game->genOnce = 0;
+    game->demonPresent = false;
 }
 
-bool commonActions(string user_input, bool demonPresent, Player *player, int notice) {
+bool commonActions(string user_input, Player *player, GameState* game) {
     if (user_input == "look") {
         player->look();
     } else if (user_input == "health") {
@@ -1310,14 +1339,14 @@ bool commonActions(string user_input, bool demonPresent, Player *player, int not
         player->displayInventory();
     } else if (user_input.size() == 0) {
         // do nothing
-    } else if (user_input == "hide" && !demonPresent) {
+    } else if (user_input == "hide" && !game->demonPresent) {
         cout << endl << "You cower for a little while until you realize there's nothing to be hiding from, after which "
         << "you slap yourself for being so silly.";
-    } else if (user_input == "hide" && notice > 0) {
+    } else if (user_input == "hide" && game->notice > 0) {
         // allow following if-statement to handle this
-    } else if ((user_input == "fight demon" || user_input == "attack demon" || user_input == "kill demon" || user_input == "punch demon") && demonPresent) {
+    } else if ((user_input == "fight demon" || user_input == "attack demon" || user_input == "kill demon" || user_input == "punch demon") && game->demonPresent) {
         // allow demonEncounter function to handle this
-    } else if ((user_input == "fight demon" || user_input == "attack demon" || user_input == "kill demon" || user_input == "punch demon") && !demonPresent) {
+    } else if ((user_input == "fight demon" || user_input == "attack demon" || user_input == "kill demon" || user_input == "punch demon") && !game->demonPresent) {
         cout << endl << "You punch the air -- a wholly futile action.";
     } else if (user_input == "run") {
         cout << endl << "Run where? Specify a direction.";
@@ -1325,6 +1354,8 @@ bool commonActions(string user_input, bool demonPresent, Player *player, int not
         help(false);
     } else if (user_input == "look at demon" || user_input == "examine demon") {
         // allow demonEncounter function to handle this
+    } else if (user_input == "save") {
+        game->save();
     } else {
         return false;
     }
@@ -1353,6 +1384,7 @@ void help(bool first) {
     << endl << "* Read carefully."
     << endl << "* Don't fight the demons."
     << endl << "* To bring up this list of tips again, enter the command \"HELP\"."
+    << endl << "* To save your game, enter the command \"SAVE\"."
     << endl << endl << "Good luck!"
     << endl << endl << "* * * * *";
 }

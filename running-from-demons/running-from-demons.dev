@@ -1,7 +1,7 @@
 [Project]
 FileName=running-from-demons.dev
 Name=running-from-demons
-UnitCount=13
+UnitCount=15
 PchHead=-1
 PchSource=-1
 Ver=3
@@ -11,7 +11,7 @@ ProfileIndex=0
 Folders=
 
 [Unit1]
-FileName=..\Running From Demons\player.h
+FileName=player.h
 CompileCpp=1
 Folder=running-from-demons
 Compile=1
@@ -21,7 +21,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit2]
-FileName=..\Running From Demons\player.cpp
+FileName=player.cpp
 CompileCpp=1
 Folder=running-from-demons
 Compile=1
@@ -31,7 +31,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit3]
-FileName=..\Running From Demons\main.cpp
+FileName=main.cpp
 CompileCpp=1
 Folder=running-from-demons
 Compile=1
@@ -41,7 +41,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit4]
-FileName=..\Running From Demons\location.h
+FileName=location.h
 CompileCpp=1
 Folder=running-from-demons
 Compile=1
@@ -51,7 +51,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit5]
-FileName=..\Running From Demons\location.cpp
+FileName=location.cpp
 CompileCpp=1
 Folder=running-from-demons
 Compile=1
@@ -61,7 +61,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit6]
-FileName=..\Running From Demons\key.h
+FileName=key.h
 CompileCpp=1
 Folder=running-from-demons
 Compile=1
@@ -71,7 +71,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit7]
-FileName=..\Running From Demons\key.cpp
+FileName=key.cpp
 CompileCpp=1
 Folder=running-from-demons
 Compile=1
@@ -81,7 +81,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit8]
-FileName=..\Running From Demons\item.h
+FileName=item.h
 CompileCpp=1
 Folder=running-from-demons
 Compile=1
@@ -91,7 +91,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit9]
-FileName=..\Running From Demons\item.cpp
+FileName=item.cpp
 CompileCpp=1
 Folder=running-from-demons
 Compile=1
@@ -101,7 +101,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit10]
-FileName=..\Running From Demons\exit.h
+FileName=exit.h
 CompileCpp=1
 Folder=running-from-demons
 Compile=1
@@ -111,7 +111,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit11]
-FileName=..\Running From Demons\exit.cpp
+FileName=exit.cpp
 CompileCpp=1
 Folder=running-from-demons
 Compile=1
@@ -121,7 +121,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit12]
-FileName=..\Running From Demons\demon.h
+FileName=demon.h
 CompileCpp=1
 Folder=running-from-demons
 Compile=1
@@ -131,7 +131,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit13]
-FileName=..\Running From Demons\demon.cpp
+FileName=demon.cpp
 CompileCpp=1
 Folder=running-from-demons
 Compile=1
@@ -214,4 +214,24 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=9
 CompilerType=9
+
+[Unit14]
+FileName=gamestate.h
+CompileCpp=1
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit15]
+FileName=gamestate.cpp
+CompileCpp=1
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
 
