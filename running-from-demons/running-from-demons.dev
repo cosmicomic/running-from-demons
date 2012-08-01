@@ -1,7 +1,7 @@
 [Project]
 FileName=running-from-demons.dev
 Name=running-from-demons
-UnitCount=15
+UnitCount=13
 PchHead=-1
 PchSource=-1
 Ver=3
@@ -158,6 +158,7 @@ ProductName=
 ProductVersion=
 AutoIncBuildNrOnRebuild=0
 AutoIncBuildNrOnCompile=0
+UnitCount=13
 
 [Profile1]
 ProfileName=MingW gcc
@@ -177,7 +178,7 @@ ExeOutput=Output\MingW
 ImagesOutput=Images\
 ObjectOutput=Objects\MingW
 OverrideOutput=0
-OverrideOutputName=
+OverrideOutputName=running-from-demons.exe
 HostApplication=
 CommandLine=
 UseCustomMakefile=0
@@ -214,24 +215,4 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=9
 CompilerType=9
-
-[Unit14]
-FileName=gamestate.h
-CompileCpp=1
-Folder=
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit15]
-FileName=gamestate.cpp
-CompileCpp=1
-Folder=
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
 

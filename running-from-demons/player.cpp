@@ -117,3 +117,16 @@ void Player::setHasKey(bool state) {
 bool Player::hasItem(string itemName) {
     return inventoryMap.count(itemName) != 0;
 }
+
+string Player::getInventoryString() {
+    string inventoryString;
+    for (mapIt = inventoryMap.begin();
+         mapIt != inventoryMap.end();
+         mapIt++) 
+    {
+        inventoryString.append((*mapIt).second->getName());
+        inventoryString.append(" ");
+    }
+    return inventoryString;
+}
+    

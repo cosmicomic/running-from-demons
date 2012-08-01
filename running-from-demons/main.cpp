@@ -11,9 +11,28 @@
 #include "item.h"
 #include "demon.h"
 #include "location.h"
-#include "gamestate.h"
 #define STARTING_HEALTH 4 // must be even number
+struct GameState;
 using namespace std;
+
+// Declare GameState struct
+struct GameState {
+    string location;
+    string inventory;
+    int health;
+    int genOnce;
+    int notice;
+    int giveHint;
+    bool demonPresent;
+    bool videotapeOn;
+    bool pathOpen;
+    bool batteryIn;
+    bool labOn;
+    bool doorOpen;
+    bool childOnce;
+    bool pastTurnstile;
+    bool descripOnce;
+} game;
 
 // Declare various functions
 void getUserInput(string& user_input);
@@ -26,6 +45,9 @@ void resetEncounterData(GameState* game);
 bool commonActions(string user_input, Player *player, GameState* game);
 void help(bool first);
 void getEnter();
+void newGame(GameState* game);
+void load(GameState* game);
+void save(GameState* game);
 
 // Declare maps
 map<string, Key*> outKeys;
@@ -132,8 +154,6 @@ int main() {
        
     //Initialize player character
     Player player(mBedroom, STARTING_HEALTH);
-    
-    //Initialize pointer to player character
     Player *mPlayer = &player;
     
     //Initialize keys
@@ -175,16 +195,19 @@ int main() {
     Item *mVideotape = &videotape;
     
     // Title screen
-    cout << endl << "Running from Demons: a text adventure game" << endl << "by Crystal Liang" << endl << "dedicated to Michael Lee"
-    << endl << endl << endl << endl;
+    /*cout << endl << "Running from Demons: a text adventure game" << endl << "by Crystal Liang" << endl << "dedicated to Michael Lee"
+    << endl << endl << endl;*/
     
     // Initialize game state and misc. stuff
     string user_input;
     srand(time(NULL));
+    bool gameNew = true;
     
     ifstream saveFile("savefile.txt");
     
-    GameState game = NULL;
+    /*GameState game = NULL;
+    GameState *mGame = &game;*/
+    
     GameState *mGame = &game;
     
     if (saveFile.good()) {
@@ -196,39 +219,69 @@ int main() {
         }
         
         if (user_input == "n" || user_input == "N") {
-            game = GameState(true);
+            newGame(mGame);
         } else {
-            game = GameState(false);
-            mPlayer->setLocation(locations.find(mGame->getLocation())->second);
+            load(mGame);
+            gameNew = false;
+            mPlayer->setLocation((locations.find(mGame->location))->second);
             
-            if (mGame->getInventory().find("telescope")) {
+            size_t found = mGame->inventory.find("telescope");
+            if (found != string::npos) {
                 mPlayer->addToInventory(mTelescope);
                 outKeys.erase("telescope");
-            } else if (mGame->getInventory().find("lab")) {
+            } 
+            
+            found = mGame->inventory.find("lab");
+            if (found != string::npos) {
                 mPlayer->addToInventory(mLab);
                 outKeys.erase("lab");
-            } else if (mGame->getInventory().find("letter")) {
+                cout << endl << "Lab found";
+            } 
+            
+            found = mGame->inventory.find("letter");
+            if (found != string::npos) {
                 mPlayer->addToInventory(mLetter);
                 outKeys.erase("letter");
-            } else if (mGame->getInventory().find("daisy chain")) {
+            } 
+            
+            found = mGame->inventory.find("daisy chain");
+            if (found != string::npos) {
                 mPlayer->addToInventory(mDaisyChain);
                 outKeys.erase("daisy chain");
-            } else if (mGame->getInventory().find("memory")) {
+            } 
+            
+            found = mGame->inventory.find("memory");
+            if (found != string::npos) {
                 mPlayer->addToInventory(mMemory);
                 outKeys.erase("memory");
-            } else if (mGame->getInventory().find("crowbar")) {
+            } 
+            
+            found = mGame->inventory.find("crowbar");
+            if (found != string::npos) {
                 mPlayer->addToInventory(mCrowbar);
-            } else if (mGame->getInventory().find("battery")) {
+            } 
+            
+            found = mGame->inventory.find("battery");
+            if (found != string::npos) {
                 mPlayer->addToInventory(mBattery);
-            } else if (mGame->getInventory().find("key")) {
+            } 
+            
+            found = mGame->inventory.find("key");
+            if (found != string::npos) {
                 mPlayer->addToInventory(mKey);
-            } else if (mGame->getInventory().find("videotape")) {
+            } 
+            
+            found = mGame->inventory.find("videotape");
+            if (found != string::npos) {
                 mPlayer->addToInventory(mVideotape);
             }
-                
         }      
     } else {
-        GameState game(true);
+        newGame(mGame);
+        cout << "Press \'e\' and then \'ENTER\' to begin. ";
+        while (user_input != "e") {
+            getline(cin, user_input);
+        }
     }
     
     //Initialize demons
@@ -264,41 +317,45 @@ int main() {
     shopProb = 20;
     
     // Intro
-    ifstream intro("intro.txt");
-    char intro_input[1000];
-    
-    while (!intro.eof()) {
-        intro.getline(intro_input, 1000, '#');
-        cout << endl << intro_input;
-        getEnter();
+    if (gameNew) {
+        ifstream intro("intro.txt");
+        char intro_input[1000];
+        
+        while (!intro.eof()) {
+            intro.getline(intro_input, 1000, '#');
+            cout << endl << intro_input;
+            getEnter();
+        }
     }
     
     //Intro level
-    mDreadDemon->interactDread(mPlayer);
-    while (mPlayer->getImmobilized()) {
-        getUserInput(user_input);
-        if (user_input.size() != 0) {
-            if (user_input == "inventory" || user_input == "look in pocket" || user_input == "check pocket" || user_input == "check in pocket"
-                || user_input == "search pocket" || user_input == "look inside pocket" || user_input == "search through pocket" || user_input == "look through pocket"
-                || user_input == "open pocket") {
-                cout << endl << "Digging in your pocket, you find that it contains... a paper heart, folded from red paper.";
-                getEnter();
-                cout << endl << "As it sits in your hand, the heart begins to fade to grey and crumple... as if your touch causes it to decay.";
-                getEnter();
-                cout << endl << "The demon fades away, disappearing altogether. You find that you can move now.";
-                getEnter();
-                demons.erase(demons.begin());
-                mPlayer->setImmobilized(true);
-                help(true);
-                break;
-            } else {
-                cout << endl << "It's no use; you can't get up.";
-                (mGame->giveHint)++;
+    if (gameNew) {
+        mDreadDemon->interactDread(mPlayer);
+        while (mPlayer->getImmobilized()) {
+            getUserInput(user_input);
+            if (user_input.size() != 0) {
+                if (user_input == "inventory" || user_input == "look in pocket" || user_input == "check pocket" || user_input == "check in pocket"
+                    || user_input == "search pocket" || user_input == "look inside pocket" || user_input == "search through pocket" || user_input == "look through pocket"
+                    || user_input == "open pocket") {
+                    cout << endl << "Digging in your pocket, you find that it contains... a paper heart, folded from red paper.";
+                    getEnter();
+                    cout << endl << "As it sits in your hand, the heart begins to fade to grey and crumple... as if your touch causes it to decay.";
+                    getEnter();
+                    cout << endl << "The demon fades away, disappearing altogether. You find that you can move now.";
+                    getEnter();
+                    demons.erase(demons.begin());
+                    mPlayer->setImmobilized(true);
+                    help(true);
+                    break;
+                } else {
+                    cout << endl << "It's no use; you can't get up.";
+                    (mGame->giveHint)++;
+                }
             }
-        }
-        
-        if (mGame->giveHint == 10) {
-            cout << endl << endl << "You can feel something in your pocket.";
+            
+            if (mGame->giveHint == 10) {
+                cout << endl << endl << "You can feel something in your pocket.";
+            }
         }
     }
     
@@ -1355,7 +1412,10 @@ bool commonActions(string user_input, Player *player, GameState* game) {
     } else if (user_input == "look at demon" || user_input == "examine demon") {
         // allow demonEncounter function to handle this
     } else if (user_input == "save") {
-        game->save();
+        game->location = player->getLocation()->getName();
+        game->inventory = player->getInventoryString();
+        save(game);
+        cout << endl << "Game saved.";
     } else {
         return false;
     }
@@ -1395,6 +1455,86 @@ void getEnter() {
     while (input.size() != 0) {
         getline(cin, input);
     }
+}
+
+void newGame(GameState *game) {
+    game->location = "Bedroom";
+    game->inventory = "paper heart";
+    game->genOnce = 0;
+    game->notice = 0;
+    game->giveHint = 0;
+    game->health = STARTING_HEALTH;
+    game->demonPresent = false;
+    game->videotapeOn = false;
+    game->pathOpen = false;
+    game->batteryIn = false;
+    game->labOn = false;
+    game->doorOpen = false;
+    game->childOnce = false;
+    game->pastTurnstile = false;
+    game->descripOnce = true;
+}
+
+void load(GameState *game) {
+    char file_input[100];
+    
+    ifstream saveFile;
+    saveFile.open("savefile.txt");
+    
+    saveFile.getline(file_input, 30, '#');
+    game->location = file_input;
+    
+    saveFile.getline(file_input, 100, '#');
+    game->inventory = file_input;
+    
+    saveFile.getline(file_input, 1, '#');
+    game->genOnce = atoi(file_input);
+    
+    saveFile.getline(file_input, 1, '#');
+    game->notice = atoi(file_input);
+    
+    saveFile.getline(file_input, 1, '#');
+    game->giveHint = atoi(file_input);
+    
+    saveFile.getline(file_input, 1, '#');
+    game->health = atoi(file_input);
+    
+    saveFile.getline(file_input, 1, '#');
+    game->demonPresent = atoi(file_input);
+    
+    saveFile.getline(file_input, 1, '#');
+    game->videotapeOn = atoi(file_input);
+    
+    saveFile.getline(file_input, 1, '#');
+    game->pathOpen = atoi(file_input);
+    
+    saveFile.getline(file_input, 1, '#');
+    game->batteryIn = atoi(file_input);
+    
+    saveFile.getline(file_input, 1, '#');
+    game->labOn = atoi(file_input);
+    
+    saveFile.getline(file_input, 1, '#');
+    game->doorOpen = atoi(file_input);
+    
+    saveFile.getline(file_input, 1, '#');
+    game->childOnce = atoi(file_input);
+    
+    saveFile.getline(file_input, 1, '#');
+    game->pastTurnstile = atoi(file_input);
+    
+    saveFile.getline(file_input, 1, '#');
+    game->descripOnce = atoi(file_input);
+    
+    saveFile.close();
+}
+
+void save(GameState* game) {
+    ofstream saveFile;
+    saveFile.open("savefile.txt");
+    saveFile << game->location << "#" << game->inventory << "#" << game->genOnce << "#" << game->notice << "#" << game->giveHint << "#" << game->health << "#" << game->demonPresent << "#" << game->videotapeOn << "#" << game->pathOpen << "#" <<
+    game->batteryIn << "#" << game->labOn << "#" << game->doorOpen << "#" << game->childOnce << "#" << game->pastTurnstile << "#" << game->descripOnce;
+    saveFile.close();
 }
 
 void isolation() {

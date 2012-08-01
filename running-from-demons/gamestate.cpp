@@ -13,6 +13,8 @@ using namespace std;
 GameState::GameState(bool newGame)
 {
     if (newGame) {
+        string location = "Bedroom";
+        string inventory = "paper heart";
         int genOnce = 0;
         int notice = 0;
         int giveHint = 0;
@@ -32,7 +34,7 @@ GameState::GameState(bool newGame)
     }
 }
 
-void GameState::save() 
+void GameState::save(string location, string inventory) 
 {
     ofstream saveFile;
     saveFile.open("savefile.txt");

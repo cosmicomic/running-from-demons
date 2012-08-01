@@ -28,7 +28,7 @@ class GameState
         bool iOnce;
         
 		GameState(bool newGame);
-		void save();
+		void save(string location, string inventory);
 		void load();
 		string getLocation();
 		string getInventory();

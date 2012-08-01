@@ -38,6 +38,7 @@ class Player {
         void addToInventory(Key *key);
         void look();
         bool hasItem(string itemName);
+        string getInventoryString();
         //template<class Type> void setVar(Type a, Type b);
 };
 
