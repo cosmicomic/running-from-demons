@@ -155,6 +155,7 @@ int main() {
     //Initialize player character
     Player player(mBedroom, STARTING_HEALTH);
     Player *mPlayer = &player;
+    mPlayer->setImmobilized(false);
     
     //Initialize keys
     Key paperHeart("paper heart", "An origami heart, folded from red paper.", mBedroom);
@@ -235,7 +236,6 @@ int main() {
             if (found != string::npos) {
                 mPlayer->addToInventory(mLab);
                 outKeys.erase("lab");
-                cout << endl << "Lab found";
             } 
             
             found = mGame->inventory.find("letter");
@@ -358,8 +358,6 @@ int main() {
             }
         }
     }
-    
-    mPlayer->setImmobilized(true);
     
     // Main loop
     while(mPlayer->getLocation() != mRoad && mPlayer->getHealth() > 0) {  
@@ -685,7 +683,7 @@ int main() {
                     mPlayer->setLocation(mLibrary);
                 } else if (user_input == "south") {
                     resetEncounterData(mGame);
-                    mPlayer->setLocationNoDescrip(mStreetSouthwest);
+                    mPlayer->setLocation(mStreetSouthwest);
                 } else if (user_input == "west") {
                     resetEncounterData(mGame);
                     mPlayer->setLocation(mPlaza);
@@ -1111,17 +1109,14 @@ int main() {
         while (mPlayer->getLocation() == mStreetSouthwest && mPlayer->getHealth() > 0) {
             
             if (mGame->descripOnce) {
-                cout << endl << "Street - Southwest" << endl << endl
-                << "This street resembles the other streets. It comes to a dead end to the south; at the end is the train station.";
-                cin.get();
                 if (outKeys.size() == 5 || outKeys.size() == 4) {
-                    cout << endl << "There is a writhing, shadowy mass enveloping the train station.";
+                    cout << endl << endl << "There is a writhing, shadowy mass enveloping the train station.";
                 } else if (outKeys.size() == 3 || outKeys.size() == 2) {
-                    cout << endl << "There is a sizeable crowd of shadows surrounding the train station.";
+                    cout << endl << endl << "There is a sizeable crowd of shadows surrounding the train station.";
                 } else if (outKeys.size() == 1) {
-                    cout << endl << "There are a few stray shadows patrolling the outside of the train station.";
+                    cout << endl << endl << "There are a few stray shadows patrolling the outside of the train station.";
                 } else {
-                    cout << endl << "The train station appears to be completely clear of any threatening entities.";
+                    cout << endl << endl << "The train station appears to be completely clear of any threatening entities.";
                 }
                 mGame->descripOnce = false;
             }
@@ -1158,6 +1153,18 @@ int main() {
                     cout << endl << "Sorry, I didn't understand that.";
                 }
             }
+            
+            if (user_input == "look") {
+                if (outKeys.size() == 5 || outKeys.size() == 4) {
+                cout << endl << endl << "There is a writhing, shadowy mass enveloping the train station.";
+                } else if (outKeys.size() == 3 || outKeys.size() == 2) {
+                    cout << endl << endl << "There is a sizeable crowd of shadows surrounding the train station.";
+                } else if (outKeys.size() == 1) {
+                    cout << endl << endl << "There are a few stray shadows patrolling the outside of the train station.";
+                } else {
+                    cout << endl << endl << "The train station appears to be completely clear of any threatening entities.";
+                }
+            } 
         }
         
         // garden
@@ -1487,44 +1494,42 @@ void load(GameState *game) {
     saveFile.getline(file_input, 100, '#');
     game->inventory = file_input;
     
-    saveFile.getline(file_input, 1, '#');
+    saveFile.getline(file_input, 5, '#');
     game->genOnce = atoi(file_input);
     
-    saveFile.getline(file_input, 1, '#');
-    game->notice = atoi(file_input);
+    game->notice = 0;
     
-    saveFile.getline(file_input, 1, '#');
+    saveFile.getline(file_input, 5, '#');
     game->giveHint = atoi(file_input);
     
-    saveFile.getline(file_input, 1, '#');
+    saveFile.getline(file_input, 5, '#');
     game->health = atoi(file_input);
     
-    saveFile.getline(file_input, 1, '#');
+    saveFile.getline(file_input, 5, '#');
     game->demonPresent = atoi(file_input);
     
-    saveFile.getline(file_input, 1, '#');
+    saveFile.getline(file_input, 5, '#');
     game->videotapeOn = atoi(file_input);
     
-    saveFile.getline(file_input, 1, '#');
+    saveFile.getline(file_input, 5, '#');
     game->pathOpen = atoi(file_input);
     
-    saveFile.getline(file_input, 1, '#');
+    saveFile.getline(file_input, 5, '#');
     game->batteryIn = atoi(file_input);
     
-    saveFile.getline(file_input, 1, '#');
+    saveFile.getline(file_input, 5, '#');
     game->labOn = atoi(file_input);
     
-    saveFile.getline(file_input, 1, '#');
+    saveFile.getline(file_input, 5, '#');
     game->doorOpen = atoi(file_input);
     
-    saveFile.getline(file_input, 1, '#');
+    saveFile.getline(file_input, 5, '#');
     game->childOnce = atoi(file_input);
     
-    saveFile.getline(file_input, 1, '#');
+    saveFile.getline(file_input, 5, '#');
     game->pastTurnstile = atoi(file_input);
     
-    saveFile.getline(file_input, 1, '#');
-    game->descripOnce = atoi(file_input);
+    game->descripOnce = 1;
     
     saveFile.close();
 }
@@ -1532,8 +1537,8 @@ void load(GameState *game) {
 void save(GameState* game) {
     ofstream saveFile;
     saveFile.open("savefile.txt");
-    saveFile << game->location << "#" << game->inventory << "#" << game->genOnce << "#" << game->notice << "#" << game->giveHint << "#" << game->health << "#" << game->demonPresent << "#" << game->videotapeOn << "#" << game->pathOpen << "#" <<
-    game->batteryIn << "#" << game->labOn << "#" << game->doorOpen << "#" << game->childOnce << "#" << game->pastTurnstile << "#" << game->descripOnce;
+    saveFile << game->location << "#" << game->inventory << "#" << game->genOnce << "#" << game->giveHint << "#" << game->health << "#" << game->demonPresent << "#" << game->videotapeOn << "#" << game->pathOpen << "#" <<
+    game->batteryIn << "#" << game->labOn << "#" << game->doorOpen << "#" << game->childOnce << "#" << game->pastTurnstile;
     saveFile.close();
 }
 
