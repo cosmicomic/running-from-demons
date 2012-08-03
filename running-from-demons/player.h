@@ -14,16 +14,17 @@ class Player {
     private:
         Location *location;
         int health;
-        vector<Item*> inventory;
-        vector<Item*>::iterator it;
         map<string, Item*> inventoryMap;
         map<string, Item*>::iterator mapIt;
+        map<string, Item*>::iterator decIt;
+        vector<Key*> keys;
         bool immobilized;
         bool hasKey;
     public:
         Player(Location *newLocation, int newHealth);
         int getHealth();
         int setHealth(int newHealth);
+        int getKeySize();
         Location* getLocation();
         void setLocation(Location *newLocation);
         void setLocationNoDescrip(Location *newLocation);
@@ -39,6 +40,7 @@ class Player {
         void look();
         bool hasItem(string itemName);
         string getInventoryString();
+        void removeFromInventory(Item *item);
         //template<class Type> void setVar(Type a, Type b);
 };
 

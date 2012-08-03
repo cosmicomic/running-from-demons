@@ -19,6 +19,7 @@ class Location {
         void addExit(Exit *newExit);
         string getName();
         string getDescription();
+        string dependentDescription();
 };
         
 #endif

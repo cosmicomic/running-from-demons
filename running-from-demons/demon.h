@@ -18,6 +18,7 @@ class Demon {
         void interactIsolation(Player *player);
         void interactDistraction(Player *player, Location *bedroom);
         void interactSelfLoathing(Player *player, Location *location);
+        void getEnter();
     public:
         Demon(string newType, string newDescription, Location *newLocation);
         void interactDread(Player *player);

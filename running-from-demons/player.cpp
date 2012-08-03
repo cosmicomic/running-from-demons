@@ -24,14 +24,17 @@ int Player::setHealth(int newHealth) {
 
 void Player::displayInventory() {
     cout << endl << "Inventory: ";
-    for (it = inventory.begin();
-         it < inventory.end() - 1;
-         it++) 
+    for (mapIt = inventoryMap.begin(); mapIt != inventoryMap.end(); mapIt++) 
     {
-        cout << (*it)->getName() << ", ";
+        decIt = mapIt;
+        if (++decIt == inventoryMap.end()) {
+            // do nothing
+        } else {
+            cout << (*mapIt).second->getName() << ", ";
+        }
     }
-    if ( it == inventory.end() - 1 ) {
-        cout << (*it)->getName() << ".";
+    if ( mapIt++ == inventoryMap.end()) {
+        cout << (*mapIt).second->getName() << ".";
     }
     
     cout << endl << endl << "To examine an item, enter the name of the item.";
@@ -45,7 +48,13 @@ void Player::displayInventory() {
             itemName[i] = tolower(itemName[i]);
         }
         if ((itemName == "read letter" || itemName == "open letter") && hasItem("letter")) {
-            cout << endl << "Letter text here";
+            cout << endl << "\"Hello, troubled soul. I hope I have the right address, and that you're doing well... but I know you're not."
+            << " For a while, I have been watching you. Not in a creepy way (but who am I to judge?). It's just that you reminded me "
+            << "of myself a few years ago.\n\nI do not mean to make assumptions about or pry into your life. I just want to tell you "
+            << "that you musn\'nt be too hard on yourself. Please try to remember the things that colour your life and keep them "
+            << "close to you.\n\nYou can\'t fight the demons on your own. You\'ll need to find someone to help you at some "
+            << "point. Please, please, please be kind to yourself."
+            << "\n\n-- a stranger";
         } else if (itemName.size() == 0) {
             // do nothing
         } else if (itemName == "exit") {
@@ -91,19 +100,55 @@ void Player::setImmobilized(bool state) {
 }
 
 void Player::addToInventory(Item *item) {
-    inventory.push_back(item);
     inventoryMap.insert( pair<string, Item*>(item->getName(), item) );
 }
 
 void Player::addToInventory(Key *key) {
-    inventory.push_back(key);
     inventoryMap.insert( pair<string, Key*>(key->getName(), key) );
+    keys.push_back(key);
 }
 
 void Player::look() {
     cout << endl; displayLocationName();
     cout << endl << endl;
     displayLocationDescription();
+    
+    if (location->getName() == "Tower") {
+        if (!hasItem("crowbar")) {
+            cout << " A crowbar leans against the wall to your left; "
+            << "it's probably there to administer percussive maintenance in case the lift breaks down or something.";
+        }
+    } else if (location->getName() == "Hill") {
+        if (!hasItem("telescope")) {
+            cout << " There is a silver telescope mounted on a tripod at the peak of the hill, though the sky is devoid of stars.";
+        } else {
+            cout << " There is an empty tripod standing at the peak of the hill.";
+        }
+        if (!hasItem("battery")) {
+            cout << " At the foot of the tripod is a black container.";
+        }
+    } else if (location->getName() == "Shop") {
+        if (!hasItem("lab")) {
+            cout << endl << " The only thing here in decent condition is a rectangular electrical device about the size of a board game box.";
+        }
+    } else if (location->getName() == "Street - Southwest") {
+        switch (keys.size()) {
+            case 0:
+            case 1:
+                cout << endl << endl << "There is a writhing, shadowy mass enveloping the train station.";
+                break;
+            case 2:
+            case 3:
+                cout << endl << endl << "There is a sizeable crowd of shadows surrounding the train station.";
+                break;
+            case 4:
+                cout << endl << endl << "There are a few stray shadows patrolling the outside of the train station.";
+                break;
+            case 5:
+                cout << endl << endl << "The train station appears to be completely clear of any threatening entities.";
+                break;
+        }
+    }
 }
 
 bool Player::getHasKey() {
@@ -129,4 +174,11 @@ string Player::getInventoryString() {
     }
     return inventoryString;
 }
+
+void Player::removeFromInventory(Item *item) {
+    inventoryMap.erase(item->getName());
+}
     
+int Player::getKeySize() {
+    return keys.size();
+}

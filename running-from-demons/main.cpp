@@ -50,7 +50,7 @@ void load(GameState* game);
 void save(GameState* game);
 
 // Declare maps
-map<string, Key*> outKeys;
+//map<string, Key*> outKeys;
 map<string, Location*> locations;
 vector<Demon*> demons;
 
@@ -164,23 +164,23 @@ int main() {
     
     Key telescope("telescope", "It's a silver telescope, made for stargazing.", mHill);
     Key *mTelescope = &telescope;
-    outKeys.insert( pair<string, Key*>(mTelescope->getName(), mTelescope) );
+    //outKeys.insert( pair<string, Key*>(mTelescope->getName(), mTelescope) );
     
     Key lab("lab", "An old electronic science lab -- the kind you'd get for Christmas as a child and run electrical experiments on.", mShop);
     Key *mLab = &lab;
-    outKeys.insert( pair<string, Key*>(mLab->getName(), mLab) );
+    //outKeys.insert( pair<string, Key*>(mLab->getName(), mLab) );
     
-    Key letter("letter", "It's an old letter you had received from a friend, but tossed without reading. Enter the command \'read letter\' to read it.", mLobby);
+    Key letter("letter", "It's an old letter you had received a long time ago, but tossed without reading. Enter the command \'read letter\' to read it.", mLobby);
     Key *mLetter = &letter;
-    outKeys.insert( pair<string, Key*>(mLetter->getName(), mLetter) );
+    //outKeys.insert( pair<string, Key*>(mLetter->getName(), mLetter) );
     
     Key daisyChain("daisy chain", "A wreath of daisies, connected at the stems.", mGarden);
     Key *mDaisyChain = &daisyChain;
-    outKeys.insert( pair<string, Key*>(mDaisyChain->getName(), mDaisyChain) );
+    //outKeys.insert( pair<string, Key*>(mDaisyChain->getName(), mDaisyChain) );
     
     Key memory("memory", "A fond memory of the most perfect day of your life.", mGarden);
     Key *mMemory = &memory;
-    outKeys.insert( pair<string, Key*>(mMemory->getName(), mMemory) );
+    //outKeys.insert( pair<string, Key*>(mMemory->getName(), mMemory) );
     
     // Intialize non-key items
     Item crowbar("crowbar", "A piece of cast iron, shaped like a crow's foot at one end.", mTower);
@@ -206,9 +206,6 @@ int main() {
     
     ifstream saveFile("savefile.txt");
     
-    /*GameState game = NULL;
-    GameState *mGame = &game;*/
-    
     GameState *mGame = &game;
     
     if (saveFile.good()) {
@@ -216,7 +213,8 @@ int main() {
         getline(cin, user_input);
         
         while (!(user_input == "n" || user_input == "N" || user_input == "c" || user_input == "C")) {
-            cout << endl << "Invalid input. Must be either \'n\' or \'c\'.";
+            cout << endl << "Invalid input. Must be either \'n\' or \'c\'. ";
+            getline(cin, user_input);
         }
         
         if (user_input == "n" || user_input == "N") {
@@ -224,36 +222,35 @@ int main() {
         } else {
             load(mGame);
             gameNew = false;
-            mPlayer->setLocation((locations.find(mGame->location))->second);
             
             size_t found = mGame->inventory.find("telescope");
             if (found != string::npos) {
                 mPlayer->addToInventory(mTelescope);
-                outKeys.erase("telescope");
+                //outKeys.erase("telescope");
             } 
             
             found = mGame->inventory.find("lab");
             if (found != string::npos) {
                 mPlayer->addToInventory(mLab);
-                outKeys.erase("lab");
+               // outKeys.erase("lab");
             } 
             
             found = mGame->inventory.find("letter");
             if (found != string::npos) {
                 mPlayer->addToInventory(mLetter);
-                outKeys.erase("letter");
+                //outKeys.erase("letter");
             } 
             
             found = mGame->inventory.find("daisy chain");
             if (found != string::npos) {
                 mPlayer->addToInventory(mDaisyChain);
-                outKeys.erase("daisy chain");
+                //outKeys.erase("daisy chain");
             } 
             
             found = mGame->inventory.find("memory");
             if (found != string::npos) {
                 mPlayer->addToInventory(mMemory);
-                outKeys.erase("memory");
+                //outKeys.erase("memory");
             } 
             
             found = mGame->inventory.find("crowbar");
@@ -275,6 +272,8 @@ int main() {
             if (found != string::npos) {
                 mPlayer->addToInventory(mVideotape);
             }
+            
+            mPlayer->setLocation((locations.find(mGame->location))->second);
         }      
     } else {
         newGame(mGame);
@@ -462,14 +461,22 @@ int main() {
                     cout << endl << "There are a lot of apartment buildings along the street below. "
                     << "You can see a library, a park, a movie theatre, a shop, a plaza, and train station in the distance." << endl;
                     getEnter();
-                    if (outKeys.size() == 5 || outKeys.size() == 4) {
-                        cout << "There is a writhing, shadowy mass enveloping the train station.";
-                    } else if (outKeys.size() == 3 || outKeys.size() == 2) {
-                        cout << "There is a sizeable crowd of shadows surrounding the train station.";
-                    } else if (outKeys.size() == 1) {
-                        cout << "There are a few stray shadows patrolling the outside of the train station.";
-                    } else {
-                        cout << "The train station appears to be completely clear of any threatening entities.";
+                    
+                    switch (mPlayer->getKeySize()) {
+                        case 0:
+                        case 1:
+                            cout << "There is a writhing, shadowy mass enveloping the train station.";
+                            break;
+                        case 2:
+                        case 3:
+                            cout << "There is a sizeable crowd of shadows surrounding the train station.";
+                            break;
+                        case 4:
+                            cout << "There are a few stray shadows patrolling the outside of the train station.";
+                            break;
+                        case 5:
+                            cout << "The train station appears to be completely clear of any threatening entities.";
+                            break;
                     }
                     getEnter();
                     cout << endl << "Very far away, you can just about make out a wide, cobblestone road. "
@@ -507,15 +514,15 @@ int main() {
                 } else if (user_input == "south" || user_input == "go up stairs" || user_input == "go upstairs" || user_input == "ascend stairs") {
                     resetEncounterData(mGame);
                     mPlayer->setLocation(mHallway);
-                } else if (user_input == "examine mailboxes") {
-                    cout << endl << "On closer inspection, all of the mailboxes, save one,"
+                } else if (user_input == "examine mailboxes" || user_input == "examine all mailboxes") {
+                    cout << endl << "On closer inspection, all of the mailboxes, save one true mailbox,"
                     << " are not mailboxes at all, but painted squares in the wall.";
                 } else if (user_input == "examine real mailbox" || user_input == "examine true mailbox") {
                     if (mPlayer->hasItem("key")) {
                         cout << endl << "It's locked... and you've got a key! What are you waiting for? Open the blasted thing!";
                     } else {
                         cout << endl << "It's locked. You'll need to find a key, I'm afraid.";
-                        cin.get();
+                        getEnter();
                         cout << endl << "Well, what did you expect? This is a text adventure game, after all.";
                     }
                 } else if (user_input == "open real mailbox" || user_input == "open true mailbox") {
@@ -528,7 +535,7 @@ int main() {
                             cout << endl << "You open the parcel; it contains a videotape.";
                             cout << endl << endl << "The videotape has been added to your inventory.";
                             mPlayer->addToInventory(mVideotape);
-                            outKeys.erase("videotape");
+                            //outKeys.erase("videotape");
                         }
                     } else {
                         cout << endl << "You need the key.";
@@ -537,7 +544,7 @@ int main() {
                     cout << endl << "You hide. The demon mills about, oblivious to your presence.";
                     continue;
                 } else if (user_input == "examine mailbox" || user_input == "open mailbox") {
-                    cout << endl << "Which mailbox?";
+                    cout << endl << "Which mailbox? (Did you mean all mailboxes?)";
                 } else if (user_input == "north" || user_input == "east") {
                     cout << endl << "You can't go that way.";
                 } else if (user_input == "examine desk") {
@@ -606,17 +613,17 @@ int main() {
             }
             
             if (mGame->childOnce == false && mGame->labOn) {
-                cin.get();
+                getEnter();
                 cout << endl << "As you enter a park, you find a child there waiting for you; strange, as you haven't hitherto met anyone in the city. "
                 << "The child beckons you to follow, and leads you through a small gap in a hedge leading into the woods. "
                 << "You pass through a thickly wooded area, guided by the child who almost seems to glow. ";
-                cin.get();
+                getEnter();
                 cout << endl << "Finally, you come to a clearing. It appears to be a secret garden of some sort. As you reach the middle of the garden, "
                 << "the child turns around and places a daisy chain on your head. The child smiles at you warmly, skips off, and, alarmingly, fades into the aether.";
                 getEnter();
                 mPlayer->setLocation(mGarden);
                 mPlayer->addToInventory(mDaisyChain);
-                outKeys.erase("daisy chain");
+                //outKeys.erase("daisy chain");
                 mGame->childOnce = true;
                 continue;
             }
@@ -724,7 +731,7 @@ int main() {
                         cout << endl << "As you move the book from the shelf to your pocket, a luminous piece of paper falls out of the book. With alarming rapidity, the book fades from "
                         << "red to dull mahogany to grey, after which it crumbles into dust. You pick up the piece of paper and stow it in your inventory.";
                         mPlayer->addToInventory(mLetter);
-                        outKeys.erase("letter");
+                        //outKeys.erase("letter");
                     } else {
                         cout << endl << "The red book has crumbled to dust.";
                     }
@@ -789,7 +796,7 @@ int main() {
                         cout << endl << "The film starts. You are slow to recognize it, but when you do, it is unmistakable."
                         << " It is a film of the greatest, most perfect day of your life.";
                         mPlayer->addToInventory(mMemory);
-                        outKeys.erase("memory");
+                        //outKeys.erase("memory");
                         mGame->videotapeOn = false;
                     } else {
                         cout << endl << "You sit in the chair and gaze absentmindedly at the blank grey screen.";
@@ -832,10 +839,14 @@ int main() {
             if (!commonActions(user_input, mPlayer, mGame)) {
                 if (user_input == "put videotape in vcr" || user_input == "play videotape" || user_input == "play videotape in vcr") {
                     if (mPlayer->hasItem("videotape")) {
-                        cout << endl << "The VCR makes some whirring and clicking noises. The projector flickers on. "
-                        << "Strangely, the machine spits the videotape out and back at you. Mystified, you take the videotape back and put it in your pocket."
-                        << endl << endl << "The projector is still on, and the machine is still running. You should probably check things out downstairs.";
-                        mGame->videotapeOn = true;
+                        if (mPlayer->hasItem("memory") || mGame->videotapeOn) {
+                            cout << endl << "You've already done this. Why do it again?";
+                        } else {
+                            cout << endl << "The VCR makes some whirring and clicking noises. The projector flickers on. "
+                            << "Strangely, the machine spits the videotape out and back at you. Mystified, you take the videotape back and put it in your pocket."
+                            << endl << endl << "The projector is still on, and the machine is still running. You should probably check things out downstairs.";
+                            mGame->videotapeOn = true;
+                        }
                     } else {
                         cout << endl << "You haven't got a videotape.";
                     }
@@ -897,7 +908,7 @@ int main() {
                     } else {
                         cout << endl << "You remove the telescope from its mount and place it in your pocket.";
                         mPlayer->addToInventory(mTelescope);
-                        outKeys.erase("telescope");
+                        //outKeys.erase("telescope");
                     }
                 } else if (user_input == "north" || user_input == "east" || user_input == "south") {
                     cout << endl << "You can't go that way.";
@@ -932,29 +943,52 @@ int main() {
                     resetEncounterData(mGame);
                     mPlayer->setLocation(mPlaza);
                 } else if (user_input == "examine device" || user_input == "examine rectangular device") {
-                    cout << endl << "The device is an old, defunct electronic lab. On closer inspection, though, it looks like the only problem is that it's missing the battery. You could probably fit the device in your pocket.";
+                    if (mPlayer->hasItem("lab")) {
+                        cout << endl << "The device is in your pocket.";
+                    } else {
+                        if (mGame->labOn && mGame->batteryIn) {
+                            cout << endl << "The lightbulbs of the lab illuminate the entire store. Smaller lights of red, blue, and green blink cheerfully on the lab's surface.";
+                        } else if (!mGame->labOn && mGame->batteryIn) {
+                            cout << endl << "The device is off, but it contains a battery. It looks like you can turn it on.";
+                        } else {
+                            cout << endl << "The device is an old, defunct electronic lab. On closer inspection, though, it looks like the only problem is that it's missing the battery. You could probably fit the device in your pocket.";
+                        }
+                    }
                 } else if (user_input == "put battery in device" || user_input == "put battery in lab") {
                     if (mPlayer->hasItem("battery")) {
                         cout << endl << "You put the battery in the device.";
+                        mPlayer->removeFromInventory(mBattery);
                         mGame->batteryIn = true;
                     } else {
                         cout << endl << "You don't have a battery.";
+                        if (mGame->batteryIn) {
+                            cout << endl << "It's in the device.";
+                        }
                     }
                 } else if (user_input == "turn device on" || user_input == "turn lab on" || user_input == "use device" || user_input == "activate device"
                            || user_input == "turn on device" || user_input == "turn on lab" || user_input == "use lab" || user_input == "activate lab") {
                     if (mGame->batteryIn) {
-                        cout << endl << "The lab flickers on.";
-                        mGame->labOn = true;
+                        if (mGame->labOn) {
+                            cout << endl << "It's already on!";
+                        } else {
+                            cout << endl << "The lab flickers on.";
+                            mGame->labOn = true;
+                            //outKeys.erase("lab");
+                        }
                     } else {
                         cout << endl << "Nothing happens; there's no battery.";
                     }
                 } else if (user_input == "take device" || user_input == "take lab") {
-                    if (mGame->labOn) {
-                        cout << endl << "With a great deal of strain and effort, you manage to shoehorn the lab into your absurdly capacious pocket.";
-                        mPlayer->addToInventory(mLab);
-                        outKeys.erase("lab");
+                    if (mPlayer->hasItem("lab")) {
+                        cout << endl << "The lab is already in your pocket.";
                     } else {
-                        cout << endl << "You can't pick it up unless you get it to work. Sorry, those are the rules of the game.";
+                        if (mGame->labOn) {
+                            cout << endl << "With a great deal of strain and effort, you manage to shoehorn the lab into your absurdly capacious pocket.";
+                            mPlayer->addToInventory(mLab);
+                            //outKeys.erase("lab");
+                        } else {
+                            cout << endl << "You can't pick it up unless you get it to work. Sorry, those are the rules of the game.";
+                        }
                     }
                 } else if (user_input == "north" || user_input == "south" || user_input == "east") {
                     cout << endl << "You can't go that way.";
@@ -968,6 +1002,21 @@ int main() {
                     cout << endl << "No matter how hard you try, you can't seem to fit them in your pocket. Darn.";
                 } else if (user_input == "take cash register") {
                     cout << endl << "It's too heavy to pick up.";
+                } else if (user_input == "take battery out") {
+                    cout << endl << "Of what?";
+                } else if (user_input == "take battery out of pocket" || user_input == "take battery out of inventory") {
+                    if (mPlayer->hasItem("battery")) {
+                        cout << endl << "You take the battery out of your pocket and let it sit in your hand for a while. You realize that "
+                        << "this is pointless if the battery has no final destination, so you put it back in your pocket.";
+                    } else {
+                        cout << endl << "You don't have a battery.";
+                    }
+                } else if (user_input == "take battery out of device" || user_input == "take battery out of lab") {
+                    if (mGame->batteryIn) {
+                        cout << endl << "Why would you want to do that?";
+                    } else {
+                        cout << endl << "There is no battery in the lab.";
+                    }
                 } else {
                     cout << endl << "Sorry, I didn't understand that.";
                 }
@@ -1060,8 +1109,12 @@ int main() {
                     resetEncounterData(mGame);
                     mPlayer->setLocation(mStreetNorth);
                 } else if (user_input == "take crowbar" || user_input == "pick up crowbar") {
-                    cout << endl << "You pick up the crowbar and somehow manage to fit it in your pocket.";
-                    mPlayer->addToInventory(mCrowbar);
+                    if (mPlayer->hasItem("crowbar")) {
+                        cout << endl << "You already have a crowbar.";
+                    } else {
+                        cout << endl << "You pick up the crowbar and somehow manage to fit it in your pocket.";
+                        mPlayer->addToInventory(mCrowbar);
+                    }
                 } else if (user_input == "examine lift") {
                     cout << endl << "The lift is completely defunct. The doors won't open and the cord has snapped.";
                 } else if (user_input == "examine crowbar") {
@@ -1108,19 +1161,6 @@ int main() {
         // street - southwest
         while (mPlayer->getLocation() == mStreetSouthwest && mPlayer->getHealth() > 0) {
             
-            if (mGame->descripOnce) {
-                if (outKeys.size() == 5 || outKeys.size() == 4) {
-                    cout << endl << endl << "There is a writhing, shadowy mass enveloping the train station.";
-                } else if (outKeys.size() == 3 || outKeys.size() == 2) {
-                    cout << endl << endl << "There is a sizeable crowd of shadows surrounding the train station.";
-                } else if (outKeys.size() == 1) {
-                    cout << endl << endl << "There are a few stray shadows patrolling the outside of the train station.";
-                } else {
-                    cout << endl << endl << "The train station appears to be completely clear of any threatening entities.";
-                }
-                mGame->descripOnce = false;
-            }
-            
             getUserInput(user_input);
             
             if (!commonActions(user_input, mPlayer, mGame)) {
@@ -1132,29 +1172,32 @@ int main() {
                     mPlayer->setLocation(mStreetWest);
                     mGame->descripOnce = true;
                 } else if (user_input == "south" || user_input == "approach mass" || user_input == "approach shadows") {
-                    if (outKeys.size() == 5 || outKeys.size() == 4) {
-                        cout << endl << "Slowly, you approach the umbral leviathan which almost seems to swallow the train station in shadow. As you get closer, "
-                        << "you feel some force that repels you. Nevertheless, you continue until suddenly it feels like you are being battered from all sides. The "
-                        << "shadow consumes you and spits you back out. You find yourself back at the intersection and much the worse for wear.";
-                        mPlayer->setHealth(mPlayer->getHealth() - 1);
-                    } else if (outKeys.size() == 3 || outKeys.size() == 2) {
-                        cout << endl << "You approach the crowd of shadows surrounding the train station and feel a repelling force. You decide against continuing and turn back.";
-                    } else if (outKeys.size() == 1) {
-                        cout << endl << "As you approach the shadowy figures milling about just outside of the train station, you feel a force pushing you back. One of "
-                        << "demons almost notices you. You decide it's best to turn back, for now.";
-                    } else {
-                        cout << endl << "You make your way across the cold expanse of cement towards the train station. The objects filling your pockets feel warm "
-                        << "against your torso, almost like they collectively comprise a protective blanket. You notice that the sky, albeit still grey, seems a lot brighter now."
-                        << " The station door opens with a small creak, and you enter.";
-                        cin.get();
-                        mPlayer->setLocation(mStation);
+                    switch (mPlayer->getKeySize()) {
+                        case 0:
+                        case 1:
+                            cout << endl << "Slowly, you approach the umbral leviathan which almost seems to swallow the train station in shadow. As you get closer, "
+                            << "you feel some force that repels you. Nevertheless, you continue until suddenly it feels like you are being battered from all sides. The "
+                            << "shadow consumes you and spits you back out. You find yourself back at the intersection and much the worse for wear.";
+                            mPlayer->setHealth(mPlayer->getHealth() - 1);
+                        case 2:
+                        case 3:
+                            cout << endl << "You approach the crowd of shadows surrounding the train station and feel a repelling force. You decide against continuing and turn back.";
+                        case 4:
+                            cout << endl << "As you approach the shadowy figures milling about just outside of the train station, you feel a force pushing you back. One of "
+                            << "demons almost notices you. You decide it's best to turn back, for now.";
+                        case 5:
+                            cout << endl << "You make your way across the cold expanse of cement towards the train station. The objects filling your pockets feel warm "
+                            << "against your torso, almost like they collectively comprise a protective blanket. You notice that the sky, albeit still grey, seems a lot brighter now."
+                            << " The station door opens with a small creak, and you enter.";
+                            getEnter();
+                            mPlayer->setLocation(mStation);
                     }
                 } else {
                     cout << endl << "Sorry, I didn't understand that.";
                 }
             }
             
-            if (user_input == "look") {
+            /*if (user_input == "look") {
                 if (outKeys.size() == 5 || outKeys.size() == 4) {
                 cout << endl << endl << "There is a writhing, shadowy mass enveloping the train station.";
                 } else if (outKeys.size() == 3 || outKeys.size() == 2) {
@@ -1164,7 +1207,7 @@ int main() {
                 } else {
                     cout << endl << endl << "The train station appears to be completely clear of any threatening entities.";
                 }
-            } 
+            }*/ 
         }
         
         // garden
@@ -1243,29 +1286,29 @@ int main() {
     
     // bad ending
     if (mPlayer->getHealth() < 0) {
-        cin.get();
+        getEnter();
         cout << endl << endl << "...";
-        cin.get();
+        getEnter();
         cout << endl << endl << "An external force overtakes you. You begin walking towards your apartment building. "
         << "As you approach the building, the world grows darker. The city crawls with multitudes of demons. "
         << "Although you find it disturbing that you are being controlled, you surrender yourself to the mysterious force and resign yourself to what you "
         << "strongly believe is your inexorable fate. You float like a ghost across the lobby, up the stairs, down the hallway... you reach your room.";
-        cin.get();
+        getEnter();
         cout << endl << endl << "You pause in your progress towards the bed, not due to reluctance, but because you are suddenly gripped with an unexplainable impulse to "
         << "touch everything in the room. You run your fingers along the desk. You stroke the back of the chair, noting that it's shaped like a madeleine. ";
-        cin.get();
+        getEnter();
         cout << endl << endl << "You fail to find solidity in these objects. The rumpled bedsheets beckon you to lose yourself in their myriad creases and folds.";
-        cin.get();
+        getEnter();
         cout << endl << endl << "You bury your own grave, embalming yourself in the sheets, interring yourself in the duvet.";
-        cin.get();
+        getEnter();
         cout << endl << endl << "The demons appear round your bed. The last sight you see is that of their grinning faces, and you close your eyes in resignation, convinced that this is what you must do.";
-        cin.get();
+        getEnter();
         cout << endl << endl << "Thus, you fall away.";
     }
     
     // good ending
     if (mPlayer->getLocation() == mRoad) {
-        cin.get();
+        getEnter();
         cout << endl << endl << "You walk across the platform, through the turnstiles, out the station door, and into the light. To your surprise, the cobblestone road "
         << "lies a few yards in front of you. It's just barely dawn. Tendrils of light creep from the horizon to an indigo sky. A few stars "
         << "twinkle with hope. For a moment, you want to turn back, but you are seized "
@@ -1275,7 +1318,7 @@ int main() {
     }
     
     cin.ignore();
-    cin.get();
+    getEnter();
     
     return 0;
 }
@@ -1314,12 +1357,12 @@ void demonEncounter(string& user_input, GameState* game, Player *mPlayer, Locati
                 int n = probabilityGenerator(100);
                 if (n < 90) {
                     cout << endl << "...";
-                    cin.get();
+                    getEnter();
                     cout << endl << "The demon shrugs and walks away.";
                     game->notice = 0;
                 } else {
                     cout << endl << "...";
-                    cin.get();
+                    getEnter();
                     cout << endl << "The demon is staring right at you now.";
                     game->notice++;
                 }
@@ -1327,13 +1370,13 @@ void demonEncounter(string& user_input, GameState* game, Player *mPlayer, Locati
                 int n = probabilityGenerator(100);
                 if (n < 70) {
                     cout << endl << "...";
-                    cin.get();
+                    getEnter();
                     cout << endl << "The demon shrugs and walks away.";
                     game->notice = 0;
                 } else {
                     cout << endl << "...";
-                    cin.get();
-                    cout << endl << "The demon approaches.";
+                    getEnter();
+                    cout << endl << endl << "The demon approaches.";
                     game->notice++;
                 }
             } else if (game->notice == 3) {
@@ -1341,13 +1384,21 @@ void demonEncounter(string& user_input, GameState* game, Player *mPlayer, Locati
             } 
         } else if (user_input == "fight demon" || user_input == "attack demon" || user_input == "kill demon" || user_input == "punch demon") {
             cout << endl << "Your fist passes uselessly through the demon's shadowy, incorporeal form. The demon emits a metallic chuckle.";
-            cin.get();
+            getEnter();
             cout << endl << endl << "...";
-            cin.get();
+            getEnter();
             (getDemon())->interact(mPlayer, mStreet, mBedroom);
             game->notice = 0;
             game->genOnce = 0;
             return;
+        } else if (user_input == "use crowbar on demon" || user_input == "fight demon with crowbar" || user_input == "attack demon with crowbar" || user_input == "hit demon with crowbar") {
+            cout << endl << "The crowbar passes uselessly through the demon's incorporeal form. The demon grins at you.";
+            getEnter();
+            cout << endl << endl << "...";
+            getEnter();
+            (getDemon())->interact(mPlayer, mStreet, mBedroom);
+            game->notice = 0;
+            game->genOnce = 0;
         } else if (user_input == "look at demon" || user_input == "examine demon") {
             cout << endl << "As soon as you lay your gaze on the demon, it whips its head round to stare straight back at you. The enormous eyes, with its black scleras and "
             << "white irises, mesmerize you.";
@@ -1369,17 +1420,17 @@ void demonEncounter(string& user_input, GameState* game, Player *mPlayer, Locati
                 case 0:
                     break;
                 case 1:
-                    cin.get();
+                    getEnter();
                     cout << endl << "The demon stops, and slowly turns its head in your direction.";
                     break;
                 case 2:
-                    cin.get();
+                    getEnter();
                     cout << endl << "The demon looks just about ready to attack.";
                     break;
                 case 3:
-                    cin.get();
+                    getEnter();
                     cout << endl << "...";
-                    cin.get();
+                    getEnter();
                     (getDemon())->interact(mPlayer, mStreet, mBedroom);
                     game->notice = 0;
                     game->genOnce = 0;
@@ -1423,6 +1474,15 @@ bool commonActions(string user_input, Player *player, GameState* game) {
         game->inventory = player->getInventoryString();
         save(game);
         cout << endl << "Game saved.";
+    } else if (user_input == "exit") {
+        cout << endl << "Would you like to save first? Y/N";
+        getUserInput(user_input);
+        if (user_input == "y" || user_input == "Y") {
+            save(game);
+            cout << endl << "Game saved.";
+            getEnter();
+        }
+        exit(0);
     } else {
         return false;
     }
@@ -1452,6 +1512,7 @@ void help(bool first) {
     << endl << "* Don't fight the demons."
     << endl << "* To bring up this list of tips again, enter the command \"HELP\"."
     << endl << "* To save your game, enter the command \"SAVE\"."
+    << endl << "* To exit the game, enter the command \"EXIT\" (or close the window)."
     << endl << endl << "Good luck!"
     << endl << endl << "* * * * *";
 }
