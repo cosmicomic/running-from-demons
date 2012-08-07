@@ -14,7 +14,7 @@ class Item {
         string description;
         Location *location;
     public:
-        Item(string newName, string newDescription, Location *newLocation);
+        Item(string newName, string newDescription);
         string getName();
         string getDescription();
 };

@@ -100,26 +100,6 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit10]
-FileName=exit.h
-CompileCpp=1
-Folder=running-from-demons
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit11]
-FileName=exit.cpp
-CompileCpp=1
-Folder=running-from-demons
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
 [Unit12]
 FileName=demon.h
 CompileCpp=1
@@ -158,7 +138,7 @@ ProductName=
 ProductVersion=
 AutoIncBuildNrOnRebuild=0
 AutoIncBuildNrOnCompile=0
-UnitCount=13
+UnitCount=11
 
 [Profile1]
 ProfileName=MingW gcc
@@ -215,4 +195,24 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=9
 CompilerType=9
+
+[Unit10]
+FileName=demon.h
+CompileCpp=1
+Folder=running-from-demons
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit11]
+FileName=demon.cpp
+CompileCpp=1
+Folder=running-from-demons
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
 

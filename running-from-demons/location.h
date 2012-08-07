@@ -12,11 +12,8 @@ class Location {
     private:
         string name;
         string description;
-        vector<Exit*> exits;
-        vector<Exit*>::iterator it;
     public:
         Location(string newName, string newDescription);
-        void addExit(Exit *newExit);
         string getName();
         string getDescription();
         string dependentDescription();

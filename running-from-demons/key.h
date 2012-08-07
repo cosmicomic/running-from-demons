@@ -10,15 +10,8 @@ class Location;
 class Player;
 
 class Key : public Item {
-    private:
-        bool found;
-        bool valid;
     public:
-        Key (string newName, string newDescription, Location *newLocation);
-        void setFound(bool state);
-        void setValid(bool state);
-        bool isFound();
-        bool isValid();
+        Key (string newName, string newDescription);
 };
 
 #endif

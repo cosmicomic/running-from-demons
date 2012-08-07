@@ -11,8 +11,6 @@ class Location;
 class Demon {
     private:
         string type;
-        string description;
-        Location *location;
         void interactRegret(Player *player);
         void interactDespair(Player *player);
         void interactIsolation(Player *player);
@@ -20,7 +18,7 @@ class Demon {
         void interactSelfLoathing(Player *player, Location *location);
         void getEnter();
     public:
-        Demon(string newType, string newDescription, Location *newLocation);
+        Demon(string newType);
         void interactDread(Player *player);
         void interact(Player *player, Location *street, Location *bedroom);
         string getType();

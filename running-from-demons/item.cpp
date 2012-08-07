@@ -1,10 +1,9 @@
 #include "item.h"
 using namespace std;
 
-Item::Item (string newName, string newDescription, Location *newLocation) {
+Item::Item (string newName, string newDescription) {
     name = newName;
     description = newDescription;
-    location = newLocation;
 }
 
 string Item::getName() {

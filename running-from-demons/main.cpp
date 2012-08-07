@@ -7,7 +7,6 @@
 #include <ctime>
 #include "player.h"
 #include "key.h"
-#include "exit.h"
 #include "item.h"
 #include "demon.h"
 #include "location.h"
@@ -42,12 +41,13 @@ Demon* getDemon();
 void isolation();
 void demonEncounter(string& user_input, GameState* game, Player *mPlayer, Location *mStreet, Location *mBedroom);
 void resetEncounterData(GameState* game);
-bool commonActions(string user_input, Player *player, GameState* game);
+bool commonActions(string& user_input, Player *player, GameState* game);
 void help(bool first);
 void getEnter();
 void newGame(GameState* game);
 void load(GameState* game);
 void save(GameState* game);
+void getInput();
 
 // Declare maps
 //map<string, Key*> outKeys;
@@ -158,41 +158,41 @@ int main() {
     mPlayer->setImmobilized(false);
     
     //Initialize keys
-    Key paperHeart("paper heart", "An origami heart, folded from red paper.", mBedroom);
+    Key paperHeart("paper heart", "An origami heart, folded from red paper.");
     Key *mPaperHeart = &paperHeart;
     mPlayer->addToInventory(mPaperHeart);
     
-    Key telescope("telescope", "It's a silver telescope, made for stargazing.", mHill);
+    Key telescope("telescope", "It's a silver telescope, made for stargazing.");
     Key *mTelescope = &telescope;
     //outKeys.insert( pair<string, Key*>(mTelescope->getName(), mTelescope) );
     
-    Key lab("lab", "An old electronic science lab -- the kind you'd get for Christmas as a child and run electrical experiments on.", mShop);
+    Key lab("lab", "An old electronic science lab -- the kind you'd get for Christmas as a child and run electrical experiments on.");
     Key *mLab = &lab;
     //outKeys.insert( pair<string, Key*>(mLab->getName(), mLab) );
     
-    Key letter("letter", "It's an old letter you had received a long time ago, but tossed without reading. Enter the command \'read letter\' to read it.", mLobby);
+    Key letter("letter", "It's an old letter you had received a long time ago, but tossed without reading. Enter the command \'read letter\' in the inventory menu to read it.");
     Key *mLetter = &letter;
     //outKeys.insert( pair<string, Key*>(mLetter->getName(), mLetter) );
     
-    Key daisyChain("daisy chain", "A wreath of daisies, connected at the stems.", mGarden);
+    Key daisyChain("daisy chain", "A wreath of daisies, connected at the stems.");
     Key *mDaisyChain = &daisyChain;
     //outKeys.insert( pair<string, Key*>(mDaisyChain->getName(), mDaisyChain) );
     
-    Key memory("memory", "A fond memory of the most perfect day of your life.", mGarden);
+    Key memory("memory", "A fond memory of the most perfect day of your life.");
     Key *mMemory = &memory;
     //outKeys.insert( pair<string, Key*>(mMemory->getName(), mMemory) );
     
     // Intialize non-key items
-    Item crowbar("crowbar", "A piece of cast iron, shaped like a crow's foot at one end.", mTower);
+    Item crowbar("crowbar", "A piece of cast iron, shaped like a crow's foot at one end.");
     Item *mCrowbar = &crowbar;
     
-    Item battery("battery", "It's a 9-volt battery.", mHill);
+    Item battery("battery", "It's a 9-volt battery.");
     Item *mBattery = &battery;
     
-    Item key("key", "A small, slightly rusty key.", mHill);
+    Item key("key", "A small, slightly rusty key.");
     Item *mKey = &key;
     
-    Item videotape("videotape", "It's a VHS cassette.", mLobby);
+    Item videotape("videotape", "It's a VHS cassette.");
     Item *mVideotape = &videotape;
     
     // Title screen
@@ -284,23 +284,23 @@ int main() {
     }
     
     //Initialize demons
-    Demon dreadDemon("dread", "description", mBedroom);
+    Demon dreadDemon("dread");
     Demon *mDreadDemon = &dreadDemon;
     demons.push_back(mDreadDemon);
     
-    Demon selfLoathingDemon("self-loathing", "description", mPark);
+    Demon selfLoathingDemon("self-loathing");
     Demon *mSelfLoathingDemon = &selfLoathingDemon;
     demons.push_back(mSelfLoathingDemon);
     
-    Demon despairDemon("despair", "description", mPark);
+    Demon despairDemon("despair");
     Demon *mDespairDemon = &despairDemon;
     demons.push_back(mDespairDemon);
     
-    Demon regretDemon("regret", "description", mStreet);
+    Demon regretDemon("regret");
     Demon *mRegretDemon = &regretDemon;
     demons.push_back(mRegretDemon);
     
-    Demon distractDemon("distraction", "description", mStreet);
+    Demon distractDemon("distraction");
     Demon *mDistractDemon = &distractDemon;
     demons.push_back(mDistractDemon);
     
@@ -427,6 +427,7 @@ int main() {
                     cout << endl << "Which drawer? Top or bottom?";
                 } else if (user_input == "south" || user_input == "west" || user_input == "east") {
                     cout << endl << "You can't go that way.";
+                    continue;
                 } else if (user_input == "sit") {
                     cout << endl << "You sit down on the carpet and linger there until you realize that the action is wholly pointless, so you get up.";
                 } else if (user_input == "sit in chair" || user_input == "sit on chair") {
@@ -442,6 +443,7 @@ int main() {
                     cout << endl << "It's a wooden door that opens in.";
                 } else {
                     cout << endl << "Sorry, I didn't understand that.";
+                    continue;
                 }
             }
         }
@@ -483,6 +485,7 @@ int main() {
                     << "However, there is an unscalable barbed wire fence lining its edges.";
                 } else if (user_input == "north" || user_input == "west") {
                     cout << endl << "You can't go that way.";
+                    continue;
                 } else if (user_input == "open window") {
                     cout << endl << "You open the window. You'd expect a draft to blow in shortly, but the air is still and stale.";
                 } else if (user_input == "jump out window" || user_input == "jump out of window") {
@@ -494,6 +497,7 @@ int main() {
                 }
                 else {
                     cout << endl << "Sorry, I didn't understand that.";
+                    continue;
                 }
             }
         }
@@ -547,6 +551,7 @@ int main() {
                     cout << endl << "Which mailbox? (Did you mean all mailboxes?)";
                 } else if (user_input == "north" || user_input == "east") {
                     cout << endl << "You can't go that way.";
+                    continue;
                 } else if (user_input == "examine desk") {
                     cout << endl << "It's a nondescript imitation wood desk.";
                 } else if (user_input == "examine stairs") {
@@ -597,6 +602,7 @@ int main() {
                     continue;
                 } else {
                     cout << endl << "Sorry, I didn't understand that.";
+                    continue;
                 }
             }
             
@@ -645,6 +651,7 @@ int main() {
                     continue;
                 } else if (user_input == "north" || user_input == "south" || user_input == "east") {
                     cout << endl << "You can't go that way.";
+                    continue;
                 } else if (user_input == "examine fountain") {
                     cout << endl << "It's a dry, cracked fountain made of whitish stone. There are a few dead spiders and cobwebs in the basin.";
                 } else if (user_input == "examine trees" || user_input == "examine tree") {
@@ -664,6 +671,7 @@ int main() {
                     cout << endl << "Why would you want to do that?";
                 } else {
                     cout << endl << "Sorry, I didn't understand that.";
+                    continue;
                 }
             }
             
@@ -701,6 +709,7 @@ int main() {
                     continue;
                 } else {
                     cout << endl << "Sorry, I didn't understand that.";
+                    continue;
                 }
             }
             
@@ -747,10 +756,12 @@ int main() {
                     }
                 } else if (user_input == "north" || user_input == "west" || user_input == "east") {
                     cout << endl << "You can't go that way.";
+                    continue;
                 } else if (user_input == "examine shadows" || user_input == "examine shadow") {
                     cout << endl << "Normal, dark shadows.";
                 } else {
                     cout << endl << "Sorry, I didn't understand that.";
+                    continue;
                 }
             }
             
@@ -773,6 +784,7 @@ int main() {
             getUserInput(user_input);
             
             if (!commonActions(user_input, mPlayer, mGame)) {
+                cout << endl << "user_input: " << user_input << endl;
                 if (user_input == "hide" && mGame->demonPresent && mGame->notice == 0) {
                     cout << endl << "You hide. The demon mills about, oblivious to your presence.";
                     continue;
@@ -809,6 +821,7 @@ int main() {
                     }
                 } else if (user_input == "north" || user_input == "south" || user_input == "west") {
                     cout << endl << "You can't go that way.";
+                    continue;
                 } else if (user_input == "examine chair") {
                     cout << endl << "It's a metal folding chair.";
                 } else if (user_input == "examine doorway" || user_input == "examine door") {
@@ -854,6 +867,7 @@ int main() {
                     mPlayer->setLocation(mTheatre);
                 } else if (user_input == "north" || user_input == "east" || user_input == "west") {
                     cout << endl << "You can't go that way.";
+                    continue;
                 } else if (user_input == "examine vcr") {
                     cout << endl << "The VCR is fully functional.";
                 } else if (user_input == "examine projector") {
@@ -870,6 +884,7 @@ int main() {
                     cout << endl << "They lead down to the theatre.";
                 } else {
                     cout << endl << "Sorry, I didn't understand that.";
+                    continue;
                 }
             }  
         }
@@ -912,6 +927,7 @@ int main() {
                     }
                 } else if (user_input == "north" || user_input == "east" || user_input == "south") {
                     cout << endl << "You can't go that way.";
+                    continue;
                 } else if (user_input == "examine grass") {
                     cout << endl << "It's green and slightly overgrown.";
                 } else if (user_input == "examine tripod") {
@@ -922,6 +938,7 @@ int main() {
                     cout << endl << "It's a 9-volt battery.";
                 } else {
                     cout << endl << "Sorry, I didn't understand that.";
+                    continue;
                 }
             }
         }
@@ -992,6 +1009,7 @@ int main() {
                     }
                 } else if (user_input == "north" || user_input == "south" || user_input == "east") {
                     cout << endl << "You can't go that way.";
+                    continue;
                 } else if (user_input == "examine cash register") {
                     cout << endl << "The empty cash register lies in a heap, defeated on the dusty floor.";
                 } else if (user_input == "examine crisp bags" || user_input == "examine bean cans" || user_input == "examine crisp bag" || user_input == "examine crisp bag") {
@@ -1019,6 +1037,7 @@ int main() {
                     }
                 } else {
                     cout << endl << "Sorry, I didn't understand that.";
+                    continue;
                 }
             }
             
@@ -1091,6 +1110,7 @@ int main() {
                     cout << endl << "Trees and such.";
                 } else {
                     cout << endl << "Sorry, I didn't understand that.";
+                    continue;
                 }
             }
             
@@ -1121,6 +1141,7 @@ int main() {
                     cout << endl << "It's a simple crowbar made of cast iron.";
                 } else {
                     cout << endl << "Sorry, I didn't understand that.";
+                    continue;
                 }
             }
         }
@@ -1146,10 +1167,12 @@ int main() {
                     mPlayer->setLocation(mStreet);
                 } else if (user_input == "west" || user_input == "east") {
                     cout << endl << "You can't go that way.";
+                    continue;
                 } else if (user_input == "examine tower") {
                     cout << endl << "It's a tall, skinny futuristic tower with a giant disk at the top. It seems there's an elevator shaft leading from the bottom to the top.";
                 } else {
                     cout << endl << "Sorry, I didn't understand that.";
+                    continue;
                 }
             }
             
@@ -1194,6 +1217,7 @@ int main() {
                     }
                 } else {
                     cout << endl << "Sorry, I didn't understand that.";
+                    continue;
                 }
             }
             
@@ -1219,6 +1243,7 @@ int main() {
                     mPlayer->setLocation(mPark);
                 } else if (user_input == "north" || user_input == "south" || user_input == "west" || user_input == "east") {
                     cout << endl << "You can't go that way.";
+                    continue;
                 } else if (user_input == "examine trees" || user_input == "examine cherry trees" || user_input == "examine tree" || user_input == "examine cherry tree") {
                     cout << endl << "The trees are blooming with life, and add to the sense of beauty of the garden.";
                 } else if (user_input == "examine pond") {
@@ -1240,6 +1265,7 @@ int main() {
                     cout << endl << "You frolic happily.";
                 } else {
                     cout << endl << "Sorry, I didn't understand that.";
+                    continue;
                 }
             }
         }
@@ -1272,12 +1298,14 @@ int main() {
                     cout << endl << "The ticket counter is closed.";
                 } else if (user_input == "south" || user_input == "east" || user_input == "west") {
                     cout << endl << "You can't go that way.";
+                    continue;
                 } else if (user_input == "examine screen" || user_input == "examine aluminum screen") {
                     cout << endl << "It's a lustrous aluminum screen.";
                 } else if (user_input == "pull up screen" || user_input == "pull up aluminum screen") {
                     cout << endl << "Your fingers can't fit between the screen and the counter.";
                 } else {
                     cout << endl << "Sorry, I didn't understand that.";
+                    continue;
                 }
             }
         }
@@ -1357,12 +1385,12 @@ void demonEncounter(string& user_input, GameState* game, Player *mPlayer, Locati
                 int n = probabilityGenerator(100);
                 if (n < 90) {
                     cout << endl << "...";
-                    getEnter();
+                    getInput();
                     cout << endl << "The demon shrugs and walks away.";
                     game->notice = 0;
                 } else {
                     cout << endl << "...";
-                    getEnter();
+                    getInput();
                     cout << endl << "The demon is staring right at you now.";
                     game->notice++;
                 }
@@ -1370,12 +1398,12 @@ void demonEncounter(string& user_input, GameState* game, Player *mPlayer, Locati
                 int n = probabilityGenerator(100);
                 if (n < 70) {
                     cout << endl << "...";
-                    getEnter();
+                    getInput();
                     cout << endl << "The demon shrugs and walks away.";
                     game->notice = 0;
                 } else {
                     cout << endl << "...";
-                    getEnter();
+                    getInput();
                     cout << endl << endl << "The demon approaches.";
                     game->notice++;
                 }
@@ -1384,21 +1412,25 @@ void demonEncounter(string& user_input, GameState* game, Player *mPlayer, Locati
             } 
         } else if (user_input == "fight demon" || user_input == "attack demon" || user_input == "kill demon" || user_input == "punch demon") {
             cout << endl << "Your fist passes uselessly through the demon's shadowy, incorporeal form. The demon emits a metallic chuckle.";
-            getEnter();
+            getInput();
             cout << endl << endl << "...";
-            getEnter();
+            getInput();
             (getDemon())->interact(mPlayer, mStreet, mBedroom);
             game->notice = 0;
             game->genOnce = 0;
             return;
         } else if (user_input == "use crowbar on demon" || user_input == "fight demon with crowbar" || user_input == "attack demon with crowbar" || user_input == "hit demon with crowbar") {
-            cout << endl << "The crowbar passes uselessly through the demon's incorporeal form. The demon grins at you.";
-            getEnter();
-            cout << endl << endl << "...";
-            getEnter();
-            (getDemon())->interact(mPlayer, mStreet, mBedroom);
-            game->notice = 0;
-            game->genOnce = 0;
+            if (mPlayer->hasItem("crowbar")) {
+                cout << endl << "The crowbar passes uselessly through the demon's incorporeal form. The demon grins at you.";
+                getInput();
+                cout << endl << endl << "...";
+                getInput();
+                (getDemon())->interact(mPlayer, mStreet, mBedroom);
+                game->notice = 0;
+                game->genOnce = 0;
+            } else {
+                cout << endl << "You don't have a crowbar.";
+            }
         } else if (user_input == "look at demon" || user_input == "examine demon") {
             cout << endl << "As soon as you lay your gaze on the demon, it whips its head round to stare straight back at you. The enormous eyes, with its black scleras and "
             << "white irises, mesmerize you.";
@@ -1420,17 +1452,17 @@ void demonEncounter(string& user_input, GameState* game, Player *mPlayer, Locati
                 case 0:
                     break;
                 case 1:
-                    getEnter();
+                    getInput();
                     cout << endl << "The demon stops, and slowly turns its head in your direction.";
                     break;
                 case 2:
-                    getEnter();
+                    getInput();
                     cout << endl << "The demon looks just about ready to attack.";
                     break;
                 case 3:
-                    getEnter();
+                    getInput();
                     cout << endl << "...";
-                    getEnter();
+                    getInput();
                     (getDemon())->interact(mPlayer, mStreet, mBedroom);
                     game->notice = 0;
                     game->genOnce = 0;
@@ -1445,7 +1477,7 @@ void resetEncounterData(GameState *game) {
     game->demonPresent = false;
 }
 
-bool commonActions(string user_input, Player *player, GameState* game) {
+bool commonActions(string& user_input, Player *player, GameState* game) {
     if (user_input == "look") {
         player->look();
     } else if (user_input == "health") {
@@ -1465,6 +1497,13 @@ bool commonActions(string user_input, Player *player, GameState* game) {
         cout << endl << "You punch the air -- a wholly futile action.";
     } else if (user_input == "run") {
         cout << endl << "Run where? Specify a direction.";
+        while (user_input == "run") {
+            getUserInput(user_input);
+            commonActions(user_input, player, game);
+        }
+        if (user_input == "north" || user_input == "south" || user_input == "east" || user_input == "west") {
+            return false;
+        }
     } else if (user_input == "help") {
         help(false);
     } else if (user_input == "look at demon" || user_input == "examine demon") {
@@ -1474,13 +1513,15 @@ bool commonActions(string user_input, Player *player, GameState* game) {
         game->inventory = player->getInventoryString();
         save(game);
         cout << endl << "Game saved.";
+    } else if (user_input == "use crowbar on demon" || user_input == "fight demon with crowbar" || user_input == "attack demon with crowbar" || user_input == "hit demon with crowbar") {
+        // allow demonEncounter function to handle this
     } else if (user_input == "exit") {
         cout << endl << "Would you like to save first? Y/N";
         getUserInput(user_input);
         if (user_input == "y" || user_input == "Y") {
             save(game);
             cout << endl << "Game saved.";
-            getEnter();
+            getInput();
         }
         exit(0);
     } else {
@@ -1609,4 +1650,7 @@ void isolation() {
     << "reaches them before you can. It drives them away with blows and slashes.";
 }
     
-
+void getInput() {
+    string input;
+    getline(cin, input);
+}
