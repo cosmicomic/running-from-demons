@@ -24,17 +24,12 @@ int Player::setHealth(int newHealth) {
 
 void Player::displayInventory() {
     cout << endl << "Inventory: ";
-    for (mapIt = inventoryMap.begin(); mapIt != inventoryMap.end(); mapIt++) 
+    for (vecIt = inventory.begin(); vecIt != inventory.end() - 1; vecIt++) 
     {
-        decIt = mapIt;
-        if (++decIt == inventoryMap.end()) {
-            // do nothing
-        } else {
-            cout << (*mapIt).second->getName() << ", ";
-        }
+        cout << (*vecIt)->getName() << ", ";
     }
-    if ( mapIt++ == inventoryMap.end()) {
-        cout << (*mapIt).second->getName() << ".";
+    if ( vecIt == inventory.end() - 1) {
+        cout << (*vecIt)->getName() << ".";
     }
     
     cout << endl << endl << "To examine an item, enter the name of the item.";
@@ -53,7 +48,7 @@ void Player::displayInventory() {
             << "of myself a few years ago.\n\nI do not mean to make assumptions about or pry into your life. I just want to tell you "
             << "that you musn\'nt be too hard on yourself. Please try to remember the things that colour your life and keep them "
             << "close to you.\n\nYou can\'t fight the demons on your own. You\'ll need to find someone to help you at some "
-            << "point. Please, please, please be kind to yourself."
+            << "point. Please, please, please be kind to yourself.\""
             << "\n\n-- a stranger";
         } else if (itemName.size() == 0) {
             // do nothing
@@ -101,11 +96,13 @@ void Player::setImmobilized(bool state) {
 
 void Player::addToInventory(Item *item) {
     inventoryMap.insert( pair<string, Item*>(item->getName(), item) );
+    inventory.push_back(item);
 }
 
 void Player::addToInventory(Key *key) {
     inventoryMap.insert( pair<string, Key*>(key->getName(), key) );
     keys.push_back(key);
+    inventory.push_back(key);
 }
 
 void Player::look() {

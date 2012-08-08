@@ -16,8 +16,9 @@ class Player {
         int health;
         map<string, Item*> inventoryMap;
         map<string, Item*>::iterator mapIt;
-        map<string, Item*>::iterator decIt;
         vector<Key*> keys;
+        vector<Item*> inventory;
+        vector<Item*>::iterator vecIt;
         bool immobilized;
         bool hasKey;
     public:

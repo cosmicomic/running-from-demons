@@ -51,6 +51,7 @@ void newGame(GameState* game);
 void load(GameState* game);
 void save(GameState* game);
 void getInput();
+void demonIniDisplay(GameState* game, int prob);
 
 // Declare vectors and maps
 map<string, Location*> locations;
@@ -167,9 +168,6 @@ int main() {
     Key telescope("telescope", "It's a silver telescope, made for stargazing.");
     Key *mTelescope = &telescope;
     
-    Key lab("lab", "An old electronic science lab -- the kind you'd get for Christmas as a child and run electrical experiments on.");
-    Key *mLab = &lab;
-    
     Key letter("letter", "It's an old letter you had received a long time ago, but tossed without reading. Enter the command \'read letter\' in the inventory menu to read it.");
     Key *mLetter = &letter;
     
@@ -191,6 +189,9 @@ int main() {
     
     Item videotape("videotape", "It's a VHS cassette.");
     Item *mVideotape = &videotape;
+
+    Item lab("lab", "An old electronic science lab -- the kind you'd get for Christmas as a child and run electrical experiments on.");
+    Item *mLab = &lab;
     
     // Title screen
     cout << endl << "Running from Demons: a text adventure game" << endl << "by Crystal Liang" << endl << "dedicated to Michael Lee"
@@ -364,6 +365,7 @@ int main() {
             if (!commonActions(user_input, mPlayer, mGame)) {
                 if (user_input == "get up" && mPlayer->getImmobilized()) {
                     mPlayer->setImmobilized(false);
+                    mGame->playerImmobilized = false;
                     cout << endl << "You get up from the bed.";
                 } else if (user_input == "get up" && !mPlayer->getImmobilized()) {
                     cout << endl << "You're already up.";
@@ -501,10 +503,7 @@ int main() {
         
         // lobby
         while (mPlayer->getLocation() == mLobby && mPlayer->getHealth() > 0) {
-            if (mGame->genOnce == 0) {
-                mGame->demonPresent = demonInArea(lobbyProb);
-                mGame->genOnce++;
-            }
+            demonIniDisplay(mGame, lobbyProb);
             
             getUserInput(user_input);
             
@@ -569,10 +568,7 @@ int main() {
         
         // street
         while (mPlayer->getLocation() == mStreet && mPlayer->getHealth() > 0) {
-            if (mGame->genOnce == 0) {
-                mGame->demonPresent = demonInArea(streetProb);
-                mGame->genOnce++;
-            }
+            demonIniDisplay(mGame, streetProb);
             
             getUserInput(user_input);
             
@@ -609,10 +605,7 @@ int main() {
         
         // park
         while (mPlayer->getLocation() == mPark && mPlayer->getHealth() > 0) {
-            if (mGame->genOnce == 0) {
-                mGame->demonPresent = demonInArea(parkProb);
-                mGame->genOnce++;
-            }
+            demonIniDisplay(mGame, parkProb);
             
             if (mGame->childOnce == false && mGame->labOn) {
                 getEnter();
@@ -677,10 +670,7 @@ int main() {
         
         // street - west
         while (mPlayer->getLocation() == mStreetWest && mPlayer->getHealth() > 0) {
-            if (mGame->genOnce == 0) {
-                mGame->demonPresent = demonInArea(altStreetProb);
-                mGame->genOnce++;
-            }
+            demonIniDisplay(mGame, altStreetProb);
             
             getUserInput(user_input);
             
@@ -715,10 +705,7 @@ int main() {
         
         // library
         while (mPlayer->getLocation() == mLibrary && mPlayer->getHealth() > 0) {
-            if (mGame->genOnce == 0) {
-                mGame->demonPresent = demonInArea(libraryProb);
-                mGame->genOnce++;
-            }
+            demonIniDisplay(mGame, libraryProb);
             
             getUserInput(user_input);
             
@@ -766,10 +753,7 @@ int main() {
         
         // theatre
         while (mPlayer->getLocation() == mTheatre && mPlayer->getHealth() > 0) {
-            if (mGame->genOnce == 0) {
-                mGame->demonPresent = demonInArea(theatreProb);
-                mGame->genOnce++;
-            }
+            demonIniDisplay(mGame, theatreProb);
             
             if (mGame->videotapeOn == true) {
                 cout << endl << endl << "It looks like the video is about to start. Why don't you have a seat over there? (in the chair?)";
@@ -778,7 +762,6 @@ int main() {
             getUserInput(user_input);
             
             if (!commonActions(user_input, mPlayer, mGame)) {
-                cout << endl << "user_input: " << user_input << endl;
                 if (user_input == "hide" && mGame->demonPresent && mGame->notice == 0) {
                     cout << endl << "You hide. The demon mills about, oblivious to your presence.";
                     continue;
@@ -937,10 +920,7 @@ int main() {
         
         // shop
         while (mPlayer->getLocation() == mShop && mPlayer->getHealth() > 0) {
-            if (mGame->genOnce == 0) {
-                mGame->demonPresent = demonInArea(shopProb);
-                mGame->genOnce++;
-            }
+            demonIniDisplay(mGame, shopProb);
             
             getUserInput(user_input);
             
@@ -1038,10 +1018,7 @@ int main() {
         
         // plaza
         while (mPlayer->getLocation() == mPlaza && mPlayer->getHealth() > 0) {
-            if (mGame->genOnce == 0) {
-                mGame->demonPresent = demonInArea(plazaProb);
-                mGame->genOnce++;
-            }
+            demonIniDisplay(mGame, plazaProb);
             
             getUserInput(user_input);
             
@@ -1138,10 +1115,7 @@ int main() {
         
         // street - north
         while (mPlayer->getLocation() == mStreetNorth && mPlayer->getHealth() > 0) {
-            if (mGame->genOnce == 0) {
-                mGame->demonPresent = demonInArea(altStreetProb);
-                mGame->genOnce++;
-            }
+            demonIniDisplay(mGame, altStreetProb);
             
             getUserInput(user_input);
             
@@ -1192,12 +1166,15 @@ int main() {
                             << "you feel some force that repels you. Nevertheless, you continue until suddenly it feels like you are being battered from all sides. The "
                             << "shadow consumes you and spits you back out. You find yourself back at the intersection and much the worse for wear.";
                             mPlayer->setHealth(mPlayer->getHealth() - 1);
+                            break;
                         case 2:
                         case 3:
                             cout << endl << "You approach the crowd of shadows surrounding the train station and feel a repelling force. You decide against continuing and turn back.";
+                            break;
                         case 4:
                             cout << endl << "As you approach the shadowy figures milling about just outside of the train station, you feel a force pushing you back. One of "
                             << "demons almost notices you. You decide it's best to turn back, for now.";
+                            break;
                         case 5:
                             cout << endl << "You make your way across the cold expanse of cement towards the train station. The objects filling your pockets feel warm "
                             << "against your torso, almost like they collectively comprise a protective blanket. You notice that the sky, albeit still grey, seems a lot brighter now."
@@ -1458,6 +1435,9 @@ void resetEncounterData(GameState *game) {
 bool commonActions(string& user_input, Player *player, GameState* game) {
     if (user_input == "look") {
         player->look();
+        if (game->demonPresent) {
+            cout << endl << endl << "There is a demon in the area.";
+        }
     } else if (user_input == "health") {
         cout << endl << "Health: " << player->getHealth();
     } else if (user_input == "inventory") {
@@ -1575,8 +1555,7 @@ void load(GameState *game) {
     saveFile.getline(file_input, 100, '#');
     game->inventory = file_input;
     
-    saveFile.getline(file_input, 5, '#');
-    game->genOnce = atoi(file_input);
+    game->genOnce = 0;
     
     game->notice = 0;
     
@@ -1621,8 +1600,8 @@ void load(GameState *game) {
 void save(GameState* game) {
     ofstream saveFile;
     saveFile.open("savefile.txt");
-    saveFile << game->location << "#" << game->inventory << "#" << game->genOnce << "#" << game->giveHint << "#" << game->health << "#" << game->demonPresent << "#" << game->videotapeOn << "#" << game->pathOpen << "#" <<
-    game->batteryIn << "#" << game->labOn << "#" << game->doorOpen << "#" << game->childOnce << "#" << game->pastTurnstile << "#" << game->playerImmobilized;
+    saveFile << game->location << "#" << game->inventory << "#" << game->giveHint << "#" << game->health << "#" << game->demonPresent << "#" << game->videotapeOn << "#" << game->pathOpen << "#" <<
+    game->batteryIn << "#" << game->labOn << "#" << game->doorOpen << "#" << game->pastTurnstile << "#" << game->playerImmobilized;
     saveFile.close();
 }
     
@@ -1630,3 +1609,16 @@ void getInput() {
     string input;
     getline(cin, input);
 }
+
+void demonIniDisplay(GameState* game, int prob) {
+    if (game->genOnce == 0) {
+        if (!game->demonPresent) {
+            game->demonPresent = demonInArea(prob);
+            game->genOnce++;
+        } else {
+            cout << endl << endl << "There is a demon in the area.";
+            game->genOnce++;
+        }
+    }
+}
+    
