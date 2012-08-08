@@ -19,10 +19,10 @@ CursorRow=12
 TopLine=1
 LeftChar=1
 [Editor_2]
-CursorCol=38
-CursorRow=303
-TopLine=287
-LeftChar=1
+CursorCol=50
+CursorRow=454
+TopLine=590
+LeftChar=2
 [Editor_12]
 CursorCol=25
 CursorRow=15
@@ -34,9 +34,9 @@ CursorRow=21
 TopLine=3
 LeftChar=1
 [Editor_10]
-CursorCol=44
-CursorRow=18
-TopLine=5
+CursorCol=34
+CursorRow=70
+TopLine=65
 LeftChar=1
 [Editor_9]
 CursorCol=29
